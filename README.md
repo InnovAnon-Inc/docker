@@ -1,8 +1,6 @@
-# docker
-dev ops pipeline hosted in docker;
-installs as a systemd service
-
+# ircd
+simple dockerized irc server
 -----
 
-Nothing is working yet. Just getting started.
+specifically chosen, as it doesn't have SSL support
 

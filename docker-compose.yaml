@@ -1,12 +1,12 @@
 version: '3.3'
 services:
-  psyrcd:
-    build: .
-    image: "innovanon/psyrcd:latest"
+  ircd:
+    #build: .
+    image: "innovanon/ircd:latest"
     networks:
-      psyrcd:
+      ircd:
         aliases:
-          - psyrcd
+          - ircd
     ports:
       - "6667:6667"
     #volumes:
@@ -15,13 +15,13 @@ services:
       mode: replicated
       replicas: 1
       #update-delay: 10s
-  psyrcd-ssl:
-    build: .
-    image: "innovanon/psyrcd:latest"
+  ircd-ssl:
+    #build: .
+    image: "innovanon/ircd:latest"
     networks:
-      psyrcd-ssl:
+      ircd-ssl:
         aliases:
-          - psyrcd-ssl
+          - ircd-ssl
     ports:
       - "26697:6667"
     deploy:
@@ -29,9 +29,9 @@ services:
       replicas: 1
 
 networks:
-  psyrcd:
-  psyrcd-ssl:
+  ircd:
+  ircd-ssl:
 
 #volumes:
-#  psyrcd:
+#  ircd:
 

@@ -1,23 +1,20 @@
 version: '3.3'
 services:
-  ircd:
+  ircd-ssl:
     #build: .
     image: "innovanon/ircd:latest"
     networks:
-      ircd:
+      ircd-ssl:
         aliases:
-          - ircd
+          - ircd-ssl
     ports:
-      - "6667:6667"
-    #volumes:
-    #  - pyrcd:/app/conf.d:ro
+      - "26697:6667"
     deploy:
       mode: replicated
       replicas: 1
-      #update-delay: 10s
 
 networks:
-  ircd:
+  ircd-ssl:
 
 #volumes:
 #  ircd:

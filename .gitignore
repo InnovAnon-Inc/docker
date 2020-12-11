@@ -4,3 +4,5 @@ secrets/
 .*.swp
 *~
 
+database/
+

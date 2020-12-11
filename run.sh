@@ -3,25 +3,37 @@ set -euxo pipefail                                    # catch some errors implic
 (( $UID ))                                            # check your privilege
 renice -n +19 "$$"                                    # be nice
 
-RSCRIPT="$(readlink -f "$0")"                         # self-reflection
+docker service rm zenbot_server zenbot_mongodb zenbot_adminmongo || :
 
-  if (( ! $#    )) ; then                             # 0 args
-  PROJECT="$(basename "$(readlink -f "$PWD")")"       # => is run from project dir
-elif (( $# == 1 )) ; then                             # 1 arg
-  PROJECT="$1"                                        # => arg    is project dir
-  cd "$(dirname "$RSCRIPT")/$PROJECT"                 #    change to project dir
-else exit 1 ; fi                                      # invalid usage
-
-COMPOSE=(docker-compose.y*ml)                         # is a docker-compose project ?
-(( ${#COMPOSE[@]} == 1 ))
-COMPOSE="${COMPOSE[0]}"
-[[ -e "$COMPOSE" ]]
-
+COMPOSE=docker-compose.yml
 awk '$1 == "image:" {print $2}' "$COMPOSE" |          # for each image name
 xargs -L1 docker pull                                 # pull latest (presumably)
+
+. .env
+
+[[ -n "$ZENBOT_DEFAULT_SELECTOR" ]]
+[[ -n "$ZENBOT_POLONIEX_API_KEY" ]]
+[[ -n "$ZENBOT_POLONIEX_SECRET" ]]
+[[ -n "$ZENBOT_KRAKEN_API_KEY" ]]
+[[ -n "$ZENBOT_KRAKEN_SECRET" ]]
+[[ -n "$ZENBOT_KRAKEN_TOS_AGREE" ]]
+[[ -n "$ZENBOT_BITTREX_API_KEY" ]]
+[[ -n "$ZENBOT_BITTREX_SECRET" ]]
+[[ -n "$ZENBOT_BITSTAMP_API_KEY" ]]
+[[ -n "$ZENBOT_BITSTAMP_SECRET" ]]
+[[ -n "$ZENBOT_BITSTAMP_CLIENT_ID" ]]
+[[ -n "$ZENBOT_CEXIO_CLIENT_ID" ]]
+[[ -n "$ZENBOT_CEXIO_API_KEY" ]]
+[[ -n "$ZENBOT_CEXIO_SECRET" ]]
+[[ -n "$ZENBOT_GEMINI_API_KEY" ]]
+[[ -n "$ZENBOT_GEMINI_SECRET" ]]
 
 docker stack deploy        \
     --with-registry-auth   \
     -c "$COMPOSE"          \
-    "$PROJECT"                                        # deploy to swarm
+    zenbot                                            # deploy to swarm
+
+docker service ls | grep zenbot
+sleep 3
+docker ps | awk '/fculpo/{print $1}' | xargs -rL1 docker logs
 

@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  smug:
+    image: "threatsimple/smug:latest"
+    networks:
+      smug:
+        aliases:
+          - smug
+    deploy:
+      mode: replicated
+      replicas: 1
+      #update-delay: 10s
+    env_file:
+      - .env
+
+networks:
+  smug:
+

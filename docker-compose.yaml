@@ -1,11 +1,11 @@
 version: '3.8'
 services:
-  smug:
+  smug-broker:
     image: "threatsimple/smug:latest"
     networks:
-      smug:
+      smug-broker:
         aliases:
-          - smug
+          - smug-broker
     deploy:
       mode: replicated
       replicas: 1
@@ -14,5 +14,5 @@ services:
       - .env
 
 networks:
-  smug:
+  smug-broker:
 

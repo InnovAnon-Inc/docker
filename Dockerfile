@@ -3,14 +3,14 @@ FROM python:latest as builder
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
       maintainer="Innovations Anonymous <InnovAnon-Inc@protonmail.com>" \
-      about="Dockerized Virtual Temple"                                 \
+      about="Dockerized IRCd"                                           \
       org.label-schema.build-date=$BUILD_DATE                           \
       org.label-schema.license="PDL (Public Domain License)"            \
-      org.label-schema.name="Dockerized Virtual Temple"                 \
-      org.label-schema.url="InnovAnon-Inc.github.io/VirtualTemple"      \
+      org.label-schema.name="Dockerized IRCd"                           \
+      org.label-schema.url="InnovAnon-Inc.github.io/docker"             \
       org.label-schema.vcs-ref=$VCS_REF                                 \
       org.label-schema.vcs-type="Git"                                   \
-      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/VirtualTemple"
+      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
 
 # localization
 ARG  TZ=UTC
@@ -21,6 +21,7 @@ ARG  LC_ALL=C.UTF-8
 ENV  LC_ALL=${LC_ALL}
 
 RUN python3 -m pip install --upgrade pip    \
+      setuptools wheel                      \
  && git clone --depth=1 --recursive         \
       https://github.com/LukeB42/psyrcd.git \
       /app2                                 \

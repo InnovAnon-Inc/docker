@@ -101,8 +101,7 @@ jobs:
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "git://github.com/xmrig/xmrig.git"
-          lrep: "git://github.com/xmrig/xmrig-cuda.git"
+          mrep: "xmrig"
           coin: "monero"
           inam: "xmrig"
   build-moneroocean:
@@ -110,8 +109,7 @@ jobs:
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "git://github.com/moneroocean/xmrig.git"
-          lrep: "git://github.com/moneroocean/xmrig-cuda.git"
+          mrep: "moneroocean"
           coin: "monero"
           inam: "moneroocean"
 

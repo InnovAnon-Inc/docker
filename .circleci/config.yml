@@ -1,0 +1,125 @@
+version: 2.1
+
+commands:
+  build:
+    parameters:
+      os:
+        default: "ubuntu"
+        type: string
+      ver:
+        default: "latest"
+        type: string
+      mrep:
+        type: string
+      coin:
+        default: "cpuchain"
+        type: string
+      docker_tag:
+        default: "native"
+        type: string
+      conf:
+        default: ""
+        type: string
+      inam:
+        type: string
+      flag:
+        default: "-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+        type: string
+    steps:
+      - checkout
+      #- setup_remote_docker
+      #- restore_cache:
+      #    keys:
+      #      - v1-{{ .Branch }}
+      #    paths:
+      #      - /caches/app.tar
+      #- run:
+      #    name: Load Docker image layer cache
+      #    command: |
+      #      docker load -i /caches/app.tar | :
+      - run:
+          name: Build
+          command: |
+            OS=<<parameters.os>>
+            VER=<<parameters.ver>>
+            INAM=<<parameters.inam>>
+            REPO=<<parameters.mrep>>
+            COIN=<<parameters.coin>>
+            DOCKER_TAG=<<parameters.docker_tag>>
+            CONF="<<parameters.conf>>"
+            CFLAGS="<<parameters.flag>>"
+            #docker build                           \
+            #  --cache-from=app \
+ 
+            docker build                           \
+              -t innovanon/$INAM:$DOCKER_TAG       \
+              --build-arg OS="$OS"                 \
+              --build-arg VER="$VER"               \
+              --build-arg REPO="$REPO"             \
+              --build-arg DOCKER_TAG="$DOCKER_TAG" \
+              --build-arg CONF="$CONF"             \
+              --build-arg COIN="$COIN"             \
+              --build-arg CFLAGS="$CFLAGS"         \
+              --pull .
+      #- run:
+      #    name: Save Docker image layer cache
+      #    command: |
+      #      mkdir -p /caches
+      #      docker save -o /caches/app.tar app
+      #- save_cache:
+      #    key: v1-{{ .Branch }}-{{ epoch }}
+      #    paths:
+      #      - /caches/app.tar
+      - run:
+          name: Test
+          command: |
+            INAM=<<parameters.inam>>
+            DOCKER_TAG=<<parameters.docker_tag>>
+
+            CID="`docker run -d --rm innovanon/$INAM:$DOCKER_TAG`"
+            echo "CID=$CID"
+
+            docker ps -a | grep "${CID::12}"
+            sleep 99
+            #sleep 19
+            #docker ps -a | grep "${CID::12}"
+            #sleep 19
+            #docker ps -a | grep "${CID::12}"
+            #sleep 19
+            #docker ps -a | grep "${CID::12}"
+            #sleep 19
+            docker ps -a | grep "${CID::12}"
+
+            # TODO trigger dockerhub, don't build automatically
+            echo TODO trigger dockerhub
+
+            docker stop "$CID"
+
+jobs:
+  build-xmrig:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "git://github.com/xmrig/xmrig.git"
+          lrep: "git://github.com/xmrig/xmrig-cuda.git"
+          coin: "monero"
+          inam: "xmrig"
+  build-moneroocean:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "git://github.com/moneroocean/xmrig.git"
+          lrep: "git://github.com/moneroocean/xmrig-cuda.git"
+          coin: "monero"
+          inam: "moneroocean"
+
+workflows:
+  build-xmrig:
+    jobs:
+      - build-xmrig
+  build-moneroocean:
+    jobs:
+      - build-moneroocean
+

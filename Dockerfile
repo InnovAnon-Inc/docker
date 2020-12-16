@@ -12,11 +12,9 @@ LABEL version="1.0"                                                     \
       org.label-schema.vcs-type="Git"                                   \
       org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
 
-# disable interactivity
 ARG  DEBIAN_FRONTEND=noninteractive
 ENV  DEBIAN_FRONTEND ${DEBIAN_FRONTEND}
 
-# localization
 ARG  TZ=UTC
 ENV  TZ ${TZ}
 ARG  LANG=C.UTF-8
@@ -24,16 +22,15 @@ ENV  LANG ${LANG}
 ARG  LC_ALL=C.UTF-8
 ENV  LC_ALL ${LC_ALL}
 
-# update/upgrade
 RUN apt update \
  && apt full-upgrade -y
 
 FROM base as builder
 
-RUN apt install      -y git build-essential autoconf automake        \
-                        libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
-                                  libhwloc-dev libssl-dev            \
-                        cmake ninja
+COPY ./scripts/dpkg-xmrig.list /dpkg.list
+RUN test -x                    /dpkg.list  \
+ && apt install      -y       `/dpkg.list` \
+ && rm -v                      /dpkg.list
 
 FROM builder as libuv
 
@@ -55,7 +52,7 @@ RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake .. $CONF                                                      \
+    cmake ..                                                            \
  && cd       ..                                                         \
  && cmake --build build                                                 \
  && cd       build                                                      \
@@ -87,7 +84,7 @@ RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake .. $CONF                                                              \
+    cmake ..                                                                    \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
@@ -123,7 +120,7 @@ RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake .. $CONF                                                      \
+    cmake ..                                                            \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
@@ -137,24 +134,11 @@ RUN mkdir -v build                                                      \
 FROM base
 USER root
 
-#MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
-#LABEL version="1.0"                                                     \
-#      maintainer="Innovations Anonymous <InnovAnon-Inc@protonmail.com>" \
-#      about="Dockerized Crypto Miner"                                   \
-#      org.label-schema.build-date=$BUILD_DATE                           \
-#      org.label-schema.license="PDL (Public Domain License)"            \
-#      org.label-schema.name="Dockerized Crypto Miner"                   \
-#      org.label-schema.url="InnovAnon-Inc.github.io/docker"             \
-#      org.label-schema.vcs-ref=$VCS_REF                                 \
-#      org.label-schema.vcs-type="Git"                                   \
-#      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
-#
-## disable interactivity
-#ARG  DEBIAN_FRONTEND=noninteractive
-#ENV  DEBIAN_FRONTEND ${DEBIAN_FRONTEND}
-
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN apt install      -y libssl1.0.0 libgmp10 libmpc3 libmpfr4 libisl15 libhwloc5 \
+COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
+RUN test -x                        /dpkg-dev.list  \
+ && apt install      -y           `/dpkg-dev.list` \
+ && rm -v                          /dpkg-dev.list  \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \

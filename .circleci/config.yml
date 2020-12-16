@@ -4,7 +4,8 @@ commands:
   build:
     parameters:
       coin:
-        default: "cpuchain"
+        # TODO other coin
+        default: "yespower"
         type: string
       docker_tag:
         default: "native"

@@ -49,7 +49,7 @@ WORKDIR                     /app
 USER nobody
 
 COPY ./scripts/configure.sh        /configure.sh
-COPY ./scripts-cpuminer/compile.sh /compile.sh
+COPY ./scripts/compile.sh          /compile.sh
 RUN                                /compile.sh \
  && strip --strip-all cpuminer
 

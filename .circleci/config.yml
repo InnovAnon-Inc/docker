@@ -27,7 +27,7 @@ commands:
             COIN=<<parameters.coin>>
             DOCKER_TAG=<<parameters.docker_tag>>
             docker build                           \
-              -t innovanon/cpuminer-rkz:$DOCKER_TAG       \
+              -t innovanon/cpuminer-opt:$DOCKER_TAG       \
               --build-arg DOCKER_TAG="$DOCKER_TAG" \
               --build-arg COIN="$COIN"             \
               --pull .
@@ -48,7 +48,7 @@ commands:
             [[ "$DOCKER_TAG" = generic ]] ||
             exit 0
 
-            CID="`docker run -d --rm innovanon/cpuminer-rkz:$DOCKER_TAG`"
+            CID="`docker run -d --rm innovanon/cpuminer-opt:$DOCKER_TAG`"
             echo "CID=$CID"
 
             docker ps -a | grep "${CID::12}"
@@ -73,14 +73,12 @@ jobs:
     machine: true
       #docker_layer_caching: true
     steps:
-      - build: #TODO
-          inam: "cpuminer-opt"
+      - build
   build-opt-generic:
     machine: true
       #docker_layer_caching: true
     steps:
-      - build: # TODO
-          inam: "cpuminer-opt"
+      - build:
           docker_tag: "generic"
       # TODO push to dockerhub
 

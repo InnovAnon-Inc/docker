@@ -48,17 +48,19 @@ RUN git clone --depth=1 --recursive  \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
+COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
- && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake ..                                                            \
+ && /configure.sh                                                       \
  && cd       ..                                                         \
  && cmake --build build                                                 \
  && cd       build                                                      \
  && make DESTDIR=dest install                                           \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
+
+USER root
+RUN rm -v                         /configure.sh
 
 FROM builder as app
 USER root
@@ -80,11 +82,10 @@ RUN tar vxf /dest.txz -C /           \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
+COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
- && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake ..                                                                    \
+ && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
@@ -93,6 +94,9 @@ RUN mkdir -v build                                                      \
  && make -j`nproc`                                                      \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
+
+USER root
+RUN rm -v /configure.sh
 
 FROM builder as lib
 USER root
@@ -116,11 +120,10 @@ RUN tar vxf /dest.txz -C /                \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
+COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
- && CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-    cmake ..                                                            \
+ && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
@@ -129,6 +132,9 @@ RUN mkdir -v build                                                      \
  && make -j`nproc`                                                      \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
+
+USER root
+RUN rm -v /configure.sh
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base

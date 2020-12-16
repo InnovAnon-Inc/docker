@@ -3,28 +3,12 @@ version: 2.1
 commands:
   build:
     parameters:
-      os:
-        default: "ubuntu"
-        type: string
-      ver:
-        default: "latest"
-        type: string
-      mrep:
-        type: string
       coin:
-        default: "cpuchain"
+        # TODO other coin
+        default: "xmr"
         type: string
       docker_tag:
-        #default: "sandybridge"
         default: "native"
-        type: string
-      conf:
-        default: ""
-        type: string
-      inam:
-        type: string
-      flag:
-        default: "-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
         type: string
     steps:
       - checkout
@@ -41,26 +25,15 @@ commands:
       - run:
           name: Build
           command: |
-            OS=<<parameters.os>>
-            VER=<<parameters.ver>>
-            INAM=<<parameters.inam>>
-            REPO=<<parameters.mrep>>
             COIN=<<parameters.coin>>
             DOCKER_TAG=<<parameters.docker_tag>>
-            CONF="<<parameters.conf>>"
-            CFLAGS="<<parameters.flag>>"
             #docker build                           \
             #  --cache-from=app \
  
             docker build                           \
-              -t innovanon/$INAM:$DOCKER_TAG       \
-              --build-arg OS="$OS"                 \
-              --build-arg VER="$VER"               \
-              --build-arg REPO="$REPO"             \
+              -t innovanon/xmrig:$DOCKER_TAG       \
               --build-arg DOCKER_TAG="$DOCKER_TAG" \
-              --build-arg CONF="$CONF"             \
               --build-arg COIN="$COIN"             \
-              --build-arg CFLAGS="$CFLAGS"         \
               --pull .
       #- run:
       #    name: Save Docker image layer cache
@@ -80,11 +53,11 @@ commands:
             [[ "$DOCKER_TAG" = generic ]] ||
             exit 0
 
-            CID="`docker run -d --rm innovanon/$INAM:$DOCKER_TAG`"
+            CID="`docker run -d --rm innovanon/xmrig:$DOCKER_TAG`"
             echo "CID=$CID"
 
             docker ps -a | grep "${CID::12}"
-            sleep 99
+            sleep 19
             #sleep 19
             #docker ps -a | grep "${CID::12}"
             #sleep 19
@@ -104,57 +77,20 @@ jobs:
     machine: true
       #docker_layer_caching: true
     steps:
-      - build:
-          mrep: "xmrig"
-          coin: "monero"
-          inam: "xmrig"
-  build-xmrig-sandybridge:
-    machine: true
-      #docker_layer_caching: true
-    steps:
-      - build:
-          mrep: "xmrig"
-          coin: "monero"
-          inam: "xmrig"
-          docker_tag: "sandybridge"
-      # TODO push to dockerhub
+      - build
   build-xmrig-generic:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "xmrig"
-          coin: "monero"
-          inam: "xmrig"
           docker_tag: "generic"
       # TODO push to dockerhub
-  build-moneroocean:
+  build-xmrig-sandybridge:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "moneroocean"
-          coin: "monero"
-          inam: "moneroocean"
-  build-moneroocean-sandybridge:
-    machine: true
-      #docker_layer_caching: true
-    steps:
-      - build:
-          mrep: "moneroocean"
-          coin: "monero"
-          inam: "moneroocean"
           docker_tag: "sandybridge"
-      # TODO push to dockerhub
-  build-moneroocean-generic:
-    machine: true
-      #docker_layer_caching: true
-    steps:
-      - build:
-          mrep: "moneroocean"
-          coin: "monero"
-          inam: "moneroocean"
-          docker_tag: "generic"
       # TODO push to dockerhub
 
 workflows:
@@ -163,9 +99,4 @@ workflows:
       - build-xmrig
       - build-xmrig-generic
       - build-xmrig-sandybridge
-  build-moneroocean:
-    jobs:
-      - build-moneroocean
-      - build-moneroocean-generic
-      - build-moneroocean-sandybridge
 

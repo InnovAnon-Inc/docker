@@ -218,10 +218,8 @@ COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 ARG COIN=xmr
 ENV COIN ${COIN}
 
-COPY "./${COIN}.d/"       /conf.d/
-VOLUME                    /conf.d
 COPY                --chown=root ./entrypoint.sh /usr/local/bin/entrypoint
-USER nobody
+#USER nobody
 
 #EXPOSE 4048
 COPY --chown=root ./healthcheck.sh /usr/local/bin/healthcheck

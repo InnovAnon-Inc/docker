@@ -30,23 +30,12 @@ RUN apt update \
 
 FROM base as builder
 
-# build-deps
 RUN apt install      -y git build-essential autoconf automake        \
                         libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
                                   libhwloc-dev libssl-dev            \
                         cmake ninja
-#  libcurl4-openssl-dev libjansson-dev
-#  zlib1g-dev
-#RUN apt install      -y lib32z1-dev
-RUN apt install -y nvidia-cuda-toolkit
-
-
-
 
 FROM builder as libuv
-
-ARG CONF
-ENV CONF ${CONF}
 
 ARG CFLAGS
 ARG CXXFLAGS
@@ -68,25 +57,14 @@ RUN mkdir -v build                                                      \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
     cmake .. $CONF                                                      \
  && cd       ..                                                         \
- && cmake --build build
-# how to install ?
-# && sh autogen.sh                                                       \
-# && ./configure                                                         \
-#    CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-#                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-# && make                                                                \
-# && make check                                                          \
-RUN cd /app/build             \
- && make DESTDIR=dest install \
- && cd           dest         \
+ && cmake --build build                                                 \
+ && cd       build                                                      \
+ && make DESTDIR=dest install                                           \
+ && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
-
 
 FROM builder as app
 USER root
-
-ARG CONF
-ENV CONF ${CONF}
 
 ARG CFLAGS
 ARG CXXFLAGS
@@ -97,10 +75,9 @@ ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C / \
- && rm -v /dest.txz
-
-RUN git clone --depth=1 --recursive  \
+RUN tar vxf /dest.txz -C /           \
+ && rm -v /dest.txz                  \
+ && git clone --depth=1 --recursive  \
     git://github.com/xmrig/xmrig.git \
     /app                             \
  && chown -R nobody:nogroup /app
@@ -120,22 +97,8 @@ RUN mkdir -v build                                                      \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
 
-
-
 FROM builder as lib
 USER root
-
-# build-deps
-RUN apt install      -y git build-essential autoconf automake        \
-                        libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
-                                  libhwloc-dev libssl-dev            \
-                        cmake
-#  libcurl4-openssl-dev libjansson-dev
-#  zlib1g-dev
-#RUN apt install      -y lib32z1-dev
-
-ARG CONF
-ENV CONF ${CONF}
 
 ARG CFLAGS
 ARG CXXFLAGS
@@ -146,11 +109,9 @@ ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C / \
- && rm -v /dest.txz
-
-# repo
-RUN git clone --depth=1 --recursive       \
+RUN tar vxf /dest.txz -C /                \
+ && rm -v /dest.txz                       \
+ && git clone --depth=1 --recursive       \
     git://github.com/xmrig/xmrig-cuda.git \
     /app                                  \
  && chown -R nobody:nogroup /app
@@ -170,64 +131,51 @@ RUN mkdir -v build                                                      \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
 
-
-
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base
-
-MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
-LABEL version="1.0"                                                     \
-      maintainer="Innovations Anonymous <InnovAnon-Inc@protonmail.com>" \
-      about="Dockerized Crypto Miner"                                   \
-      org.label-schema.build-date=$BUILD_DATE                           \
-      org.label-schema.license="PDL (Public Domain License)"            \
-      org.label-schema.name="Dockerized Crypto Miner"                   \
-      org.label-schema.url="InnovAnon-Inc.github.io/docker"             \
-      org.label-schema.vcs-ref=$VCS_REF                                 \
-      org.label-schema.vcs-type="Git"                                   \
-      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
-
-# disable interactivity
-ARG  DEBIAN_FRONTEND=noninteractive
-ENV  DEBIAN_FRONTEND ${DEBIAN_FRONTEND}
-
-WORKDIR /
 USER root
 
-# runtime-deps
-#libcurl4 libjansson4 zlib1g
-#RUN apt install      -y lib32z1
-#RUN apt install      -y libgmp10 libmpc3 libmpfr4 libisl15 \
-#                        libssl1.0.0 libhwloc5              \
-RUN apt-cache search libssl
-RUN apt-cache search libmpc
-RUN apt-cache search libmpfr
-RUN apt-cache search libisl
+#MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
+#LABEL version="1.0"                                                     \
+#      maintainer="Innovations Anonymous <InnovAnon-Inc@protonmail.com>" \
+#      about="Dockerized Crypto Miner"                                   \
+#      org.label-schema.build-date=$BUILD_DATE                           \
+#      org.label-schema.license="PDL (Public Domain License)"            \
+#      org.label-schema.name="Dockerized Crypto Miner"                   \
+#      org.label-schema.url="InnovAnon-Inc.github.io/docker"             \
+#      org.label-schema.vcs-ref=$VCS_REF                                 \
+#      org.label-schema.vcs-type="Git"                                   \
+#      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
+#
+## disable interactivity
+#ARG  DEBIAN_FRONTEND=noninteractive
+#ENV  DEBIAN_FRONTEND ${DEBIAN_FRONTEND}
+
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN apt install      -y libssl1.0.0 libgmp10 libmpc3 libmpfr4 libisl15 libhwloc5 \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \
            /usr/share/info/*    \
            /usr/share/man/*     \
-           /usr/share/doc/*
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C / \
+           /usr/share/doc/*     \
+ && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 
-ARG COIN=xmr
-ENV COIN ${COIN}
+COPY            --chown=root ./entrypoint.sh  /usr/local/bin/entrypoint
 
-COPY                --chown=root ./entrypoint.sh /usr/local/bin/entrypoint
-#USER nobody
-
-#EXPOSE 4048
-COPY --chown=root ./healthcheck.sh /usr/local/bin/healthcheck
+COPY            --chown=root ./healthcheck.sh /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
+# TODO test during build
+
+#USER nobody
+#EXPOSE 4048
+
+WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["btc"]
-CMD        ["default"]
+CMD        []
 

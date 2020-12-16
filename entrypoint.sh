@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 set -euxo pipefail
 (( ! $UID ))
-#(( $UID ))
 
 if (( $# == 1 )) ; then
     [[ -n "$1" ]]
@@ -13,7 +12,6 @@ else exit 2 ; fi
 exec 0<&-          # close stdin
 exec 2>&1          # redirect stderr to stdout
 renice -n -20 "$$" || : # max prio
-#sudo -u nobody -g nogroup -- \
 /usr/local/bin/xmrig             \
 -u "$WALLET"                     \
 -p docker                        \

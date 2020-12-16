@@ -83,6 +83,7 @@ RUN cd /app/build             \
 
 
 FROM builder as app
+USER root
 
 ARG CONF
 ENV CONF ${CONF}
@@ -98,7 +99,6 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
-RUN ls -ltra /usr/local/lib
 
 RUN git clone --depth=1 --recursive  \
     git://github.com/xmrig/xmrig.git \
@@ -123,6 +123,7 @@ RUN mkdir -v build                                                      \
 
 
 FROM builder as lib
+USER root
 
 # build-deps
 RUN apt install      -y git build-essential autoconf automake        \

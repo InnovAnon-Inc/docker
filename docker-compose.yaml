@@ -4,6 +4,7 @@ services:
     build:
       context: .
       args:
+        # TODO other coin
         COIN: "cpuchain"
     image: "innovanon/cpuminer-rkz:${DOCKER_TAG}"
     deploy:

@@ -4,7 +4,7 @@ commands:
   build:
     parameters:
       coin:
-        default: "cpuchain"
+        default: "yespower"
         type: string
       docker_tag:
         default: "native"
@@ -74,14 +74,12 @@ jobs:
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "git://github.com/RickillerZ/cpuminer-RKZ.git"
           inam: "cpuminer-rkz"
   build-rkz-generic:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
-          mrep: "git://github.com/RickillerZ/cpuminer-RKZ.git"
           inam: "cpuminer-rkz"
           docker_tag: "generic"
       # TODO push to dockerhub

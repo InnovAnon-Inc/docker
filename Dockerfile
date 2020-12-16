@@ -50,7 +50,7 @@ USER nobody
 
 # TODO ppc cross compiler
 COPY ./scripts/configure.sh        /configure.sh
-COPY ./scripts-cpuminer/compile.sh /compile.sh
+COPY ./scripts/compile.sh          /compile.sh
 RUN                                /compile.sh \
  && ln -sv minerd     cpuminer                 \
  && strip --strip-all cpuminer

@@ -76,6 +76,9 @@ commands:
           command: |
             INAM=<<parameters.inam>>
             DOCKER_TAG=<<parameters.docker_tag>>
+            [[ "$DOCKER_TAG" = native  ]] ||
+            [[ "$DOCKER_TAG" = generic ]] ||
+            exit 0
 
             CID="`docker run -d --rm innovanon/$INAM:$DOCKER_TAG`"
             echo "CID=$CID"
@@ -105,6 +108,26 @@ jobs:
           mrep: "xmrig"
           coin: "monero"
           inam: "xmrig"
+  build-xmrig-sandybridge:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "xmrig"
+          coin: "monero"
+          inam: "xmrig"
+          docker_tag: "sandybridge"
+      # TODO push to dockerhub
+  build-xmrig-generic:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "xmrig"
+          coin: "monero"
+          inam: "xmrig"
+          docker_tag: "generic"
+      # TODO push to dockerhub
   build-moneroocean:
     machine: true
       #docker_layer_caching: true
@@ -113,12 +136,36 @@ jobs:
           mrep: "moneroocean"
           coin: "monero"
           inam: "moneroocean"
+  build-moneroocean-sandybridge:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "moneroocean"
+          coin: "monero"
+          inam: "moneroocean"
+          docker_tag: "sandybridge"
+      # TODO push to dockerhub
+  build-moneroocean-generic:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          mrep: "moneroocean"
+          coin: "monero"
+          inam: "moneroocean"
+          docker_tag: "generic"
+      # TODO push to dockerhub
 
 workflows:
   build-xmrig:
     jobs:
       - build-xmrig
+      - build-xmrig-generic
+      - build-xmrig-sandybridge
   build-moneroocean:
     jobs:
       - build-moneroocean
+      - build-moneroocean-generic
+      - build-moneroocean-sandybridge
 

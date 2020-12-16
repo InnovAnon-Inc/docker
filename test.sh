@@ -2,13 +2,14 @@
 set -euxo pipefail
 (( ! $UID ))
 (( ! $# ))
-exec 0<&-          # close stdin
-exec 2>&1          # redirect stderr to stdout
-renice -n -20 "$$" || : # max prio
 
-/usr/local/bin/entrypoint &
+[[ -n "$DOCKER_TAG" ]]
+[[ "$DOCKER_TAG" = native ]] || exit 0
+
+/usr/local/bin/entrypoint default &
 P="$!"
 sleep 99
 kill "$P"
-wait -n "$P"
+#wait -n "$P"
+wait "$P"
 

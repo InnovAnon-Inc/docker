@@ -166,19 +166,19 @@ RUN apt install      -y libssl1.0.0 libgmp10 libmpc3 libmpfr4 libisl15 libhwloc5
 COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 
-COPY            --chown=root ./entrypoint.sh  /usr/local/bin/entrypoint
+COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
 
-COPY            --chown=root ./healthcheck.sh /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck.sh /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
 #USER nobody
 #EXPOSE 4048
 
-COPY --chown=root ./test.sh /test
+COPY --chown=root ./scripts/test.sh /test
 RUN /test && rm  -v /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-CMD        []
+CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
 

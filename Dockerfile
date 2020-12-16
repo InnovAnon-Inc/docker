@@ -31,10 +31,6 @@ COPY ./scripts/dpkg-dev.list /dpkg-dev.list
 RUN apt install -y          `/dpkg-dev.list` \
  && rm -v                    /dpkg-dev.list
 
-# TODO branches instead of args
-ARG REPO=git://github.com/RickillerZ/cpuminer-RKZ.git
-ENV REPO ${REPO}
-
 ARG CONF
 ENV CONF ${CONF}
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -45,22 +41,16 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-# repo
 RUN git clone --depth=1 --recursive   \
-   "${REPO}"                          \
+    git://github.com/RickillerZ/cpuminer-RKZ.git \
                             /app      \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
 
-# TODO ppc cross compiler
 COPY ./scripts/configure.sh        /configure.sh
 COPY ./scripts-cpuminer/compile.sh /compile.sh
 RUN                                /compile.sh \
- && if [ ! -x cpuminer ] ; then                \
-      [ -x minerd ] &&                         \
-      ln -sv minerd cpuminer  ;                \
-    fi                                         \
  && strip --strip-all cpuminer
 
 USER root
@@ -83,7 +73,6 @@ RUN apt install    -y         `/dpkg.list` \
 COPY --chown=root --from=builder \
        /app/cpuminer           /usr/local/bin/cpuminer
 
-# TODO branches instead of args
 ARG COIN=cpuchain
 ENV COIN ${COIN}
 
@@ -107,6 +96,5 @@ RUN                            /test \
  && rm -v                      /test
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["btc"]
 CMD        ["default"]
 

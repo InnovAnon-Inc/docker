@@ -1,5 +1,5 @@
 # miner
-Dockerized Crypto Miners
+Dockerized Crypto Miner: cpuminer-RKZ
 
 -----
 

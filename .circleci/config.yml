@@ -15,6 +15,7 @@ commands:
         default: "cpuchain"
         type: string
       docker_tag:
+        #default: "sandybridge"
         default: "native"
         type: string
       conf:

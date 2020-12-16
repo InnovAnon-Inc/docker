@@ -42,7 +42,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=sandybridge
+ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive  \
@@ -71,7 +71,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=sandybridge
+ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
@@ -105,7 +105,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=sandybridge
+ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN ls -ltra /usr/local ; exit 2

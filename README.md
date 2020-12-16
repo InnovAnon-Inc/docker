@@ -1,5 +1,5 @@
-# miner
-Dockerized Crypto Miners
+# cpuminer-opt-cpupower
+Dockerized Crypto Miner
 
 -----
 

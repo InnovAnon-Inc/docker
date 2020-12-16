@@ -37,7 +37,7 @@ RUN apt install      -y git build-essential autoconf automake        \
 
 FROM builder as libuv
 
-ARG CFLAGS
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
@@ -66,7 +66,7 @@ RUN mkdir -v build                                                      \
 FROM builder as app
 USER root
 
-ARG CFLAGS
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
@@ -100,13 +100,15 @@ RUN mkdir -v build                                                      \
 FROM builder as lib
 USER root
 
-ARG CFLAGS
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
 ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
+
+RUN ls -ltra /usr/local ; exit 2
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
@@ -170,10 +172,11 @@ COPY            --chown=root ./healthcheck.sh /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
-# TODO test during build
-
 #USER nobody
 #EXPOSE 4048
+
+COPY --chown=root ./test.sh /test
+RUN /test && rm  -v /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

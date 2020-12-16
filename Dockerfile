@@ -28,7 +28,8 @@ RUN apt update \
 FROM base as builder
 
 COPY ./scripts/dpkg-dev.list /dpkg-dev.list
-RUN apt install -y          `/dpkg-dev.list` \
+RUN test -x                  /dpkg-dev.list  \
+ && apt install -y          `/dpkg-dev.list` \
  && rm -v                    /dpkg-dev.list
 
 # TODO branches instead of args
@@ -45,7 +46,6 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-# repo
 RUN git clone --depth=1 --recursive   \
    "${REPO}"                          \
                             /app      \
@@ -72,7 +72,8 @@ USER root
 WORKDIR /
 
 COPY  ./scripts/dpkg.list      /dpkg.list
-RUN apt install    -y         `/dpkg.list` \
+RUN test -x                    /dpkg.list  \
+ && apt install    -y         `/dpkg.list` \
  && rm -v                      /dpkg.list  \
  && apt autoremove -y                      \
  && apt clean      -y                      \

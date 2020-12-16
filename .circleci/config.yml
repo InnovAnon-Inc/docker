@@ -73,14 +73,12 @@ jobs:
     machine: true
       #docker_layer_caching: true
     steps:
-      - build:
-          inam: "cpuminer-rkz"
+      - build
   build-rkz-generic:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
-          inam: "cpuminer-rkz"
           docker_tag: "generic"
       # TODO push to dockerhub
 

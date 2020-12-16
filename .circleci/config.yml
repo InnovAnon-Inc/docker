@@ -47,7 +47,6 @@ commands:
       - run:
           name: Test
           command: |
-            INAM=<<parameters.inam>>
             DOCKER_TAG=<<parameters.docker_tag>>
             [[ "$DOCKER_TAG" = native  ]] ||
             [[ "$DOCKER_TAG" = generic ]] ||

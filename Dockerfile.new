@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-base as base
+FROM ubuntu:16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -24,28 +24,24 @@ ENV  LANG ${LANG}
 ARG  LC_ALL=C.UTF-8
 ENV  LC_ALL ${LC_ALL}
 
-# update/upgrade
-RUN apt update \
- && apt full-upgrade -y
-
-
-
-
+ADD https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600
+RUN apt update
+RUN apt full-upgrade -y
+RUN apt install      -y software-properties-common apt-transport-https
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/ /"
+RUN apt remove       -y --autoremove software-properties-common
+RUN apt update
+RUN apt install      -y cuda
+RUN apt remove       -y --autoremove apt-transport-https
 
 
 
 FROM base as builder
 
-# build-deps
-RUN apt install      -y git build-essential autoconf automake        \
+RUN apt install      -y git build-essential cmake ninja              \
                         libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
-                                  libhwloc-dev libssl-dev            \
-                        cmake ninja
-#  libcurl4-openssl-dev libjansson-dev
-#  zlib1g-dev
-#RUN apt install      -y lib32z1-dev
-RUN apt install -y nvidia-cuda-toolkit
-
+                        libhwloc-dev libssl-dev
 
 
 
@@ -59,7 +55,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG
+ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive  \
@@ -74,18 +70,12 @@ RUN mkdir -v build                                                      \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
     cmake .. $CONF                                                      \
  && cd       ..                                                         \
- && cmake --build build
-# how to install ?
-# && sh autogen.sh                                                       \
-# && ./configure                                                         \
-#    CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-#                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
-# && make                                                                \
-# && make check                                                          \
-RUN cd /app/build             \
- && make DESTDIR=dest install \
- && cd           dest         \
+ && cmake --build build                                                 \
+ && cd /app/build                                                       \
+ && make DESTDIR=dest install                                           \
+ && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
+
 
 
 FROM builder as app
@@ -98,13 +88,12 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG
+ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
-RUN ls -ltra /usr/local/lib
 
 RUN git clone --depth=1 --recursive  \
     git://github.com/xmrig/xmrig.git \
@@ -130,15 +119,6 @@ RUN mkdir -v build                                                      \
 
 FROM builder as lib
 
-# build-deps
-RUN apt install      -y git build-essential autoconf automake        \
-                        libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
-                                  libhwloc-dev libssl-dev            \
-                        cmake
-#  libcurl4-openssl-dev libjansson-dev
-#  zlib1g-dev
-#RUN apt install      -y lib32z1-dev
-
 ARG CONF
 ENV CONF ${CONF}
 
@@ -147,14 +127,13 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG
+ARG DOCKER_TAG=sandybridge
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
 
-# repo
 RUN git clone --depth=1 --recursive       \
     git://github.com/xmrig/xmrig-cuda.git \
     /app                                  \
@@ -181,23 +160,22 @@ FROM base
 WORKDIR /
 USER root
 
-# runtime-deps
-#libcurl4 libjansson4 zlib1g
-#RUN apt install      -y lib32z1
-RUN apt install      -y libssl1.1 libgmp10 libmpc3 libmpfr6 libisl22 \
+RUN apt install      -y libgmp10 libmpc3 libmpfr4 libisl15 \
+                        libssl1.0.0 libhwloc5              \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \
            /usr/share/info/*    \
            /usr/share/man/*     \
            /usr/share/doc/*
+
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 
-ARG COIN
+ARG COIN=xmr
 ENV COIN ${COIN}
 
 COPY "./${COIN}.d/"       /conf.d/

@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as base
+FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -24,24 +24,22 @@ ENV  LANG ${LANG}
 ARG  LC_ALL=C.UTF-8
 ENV  LC_ALL ${LC_ALL}
 
-ADD https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600
-RUN apt update
-RUN apt full-upgrade -y
-RUN apt install      -y software-properties-common apt-transport-https
-RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
-RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/ /"
-RUN apt remove       -y --autoremove software-properties-common
-RUN apt update
-RUN apt install      -y cuda
-RUN apt remove       -y --autoremove apt-transport-https
-
-
+# update/upgrade
+RUN apt update \
+ && apt full-upgrade -y
 
 FROM base as builder
 
-RUN apt install      -y git build-essential cmake ninja              \
+# build-deps
+RUN apt install      -y git build-essential autoconf automake        \
                         libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
-                        libhwloc-dev libssl-dev
+                                  libhwloc-dev libssl-dev            \
+                        cmake ninja
+#  libcurl4-openssl-dev libjansson-dev
+#  zlib1g-dev
+#RUN apt install      -y lib32z1-dev
+RUN apt install -y nvidia-cuda-toolkit
+
 
 
 
@@ -70,12 +68,18 @@ RUN mkdir -v build                                                      \
                 CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
     cmake .. $CONF                                                      \
  && cd       ..                                                         \
- && cmake --build build                                                 \
- && cd /app/build                                                       \
- && make DESTDIR=dest install                                           \
- && cd           dest                                                   \
+ && cmake --build build
+# how to install ?
+# && sh autogen.sh                                                       \
+# && ./configure                                                         \
+#    CXXFLAGS="$CXXFLAGS $CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
+#                CFLAGS="$CFLAGS -march=$DOCKER_TAG -mtune=$DOCKER_TAG"  \
+# && make                                                                \
+# && make check                                                          \
+RUN cd /app/build             \
+ && make DESTDIR=dest install \
+ && cd           dest         \
  && tar vpacf ../dest.txz --owner root --group root .
-
 
 
 FROM builder as app
@@ -94,6 +98,7 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
+RUN ls -ltra /usr/local/lib
 
 RUN git clone --depth=1 --recursive  \
     git://github.com/xmrig/xmrig.git \
@@ -119,6 +124,15 @@ RUN mkdir -v build                                                      \
 
 FROM builder as lib
 
+# build-deps
+RUN apt install      -y git build-essential autoconf automake        \
+                        libgmp-dev libmpc-dev libmpfr-dev libisl-dev \
+                                  libhwloc-dev libssl-dev            \
+                        cmake
+#  libcurl4-openssl-dev libjansson-dev
+#  zlib1g-dev
+#RUN apt install      -y lib32z1-dev
+
 ARG CONF
 ENV CONF ${CONF}
 
@@ -134,6 +148,7 @@ COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
 
+# repo
 RUN git clone --depth=1 --recursive       \
     git://github.com/xmrig/xmrig-cuda.git \
     /app                                  \
@@ -156,26 +171,51 @@ RUN mkdir -v build                                                      \
 
 
 
+#FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base
+
+MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
+LABEL version="1.0"                                                     \
+      maintainer="Innovations Anonymous <InnovAnon-Inc@protonmail.com>" \
+      about="Dockerized Crypto Miner"                                   \
+      org.label-schema.build-date=$BUILD_DATE                           \
+      org.label-schema.license="PDL (Public Domain License)"            \
+      org.label-schema.name="Dockerized Crypto Miner"                   \
+      org.label-schema.url="InnovAnon-Inc.github.io/docker"             \
+      org.label-schema.vcs-ref=$VCS_REF                                 \
+      org.label-schema.vcs-type="Git"                                   \
+      org.label-schema.vcs-url="https://github.com/InnovAnon-Inc/docker"
+
+# disable interactivity
+ARG  DEBIAN_FRONTEND=noninteractive
+ENV  DEBIAN_FRONTEND ${DEBIAN_FRONTEND}
+
 WORKDIR /
 USER root
 
-RUN apt install      -y libgmp10 libmpc3 libmpfr6 libisl22 \
-                        libssl1.1 libhwloc                 \
+# runtime-deps
+#libcurl4 libjansson4 zlib1g
+#RUN apt install      -y lib32z1
+#RUN apt install      -y libgmp10 libmpc3 libmpfr4 libisl15 \
+#                        libssl1.0.0 libhwloc5              \
+RUN apt-cache search libssl
+RUN apt-cache search libmpc
+RUN apt-cache search libmpfr
+RUN apt-cache search libisl
+RUN apt install      -y libssl1.0.0 libgmp10 libmpc3 libmpfr4 libisl15 libhwloc5 \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \
            /usr/share/info/*    \
            /usr/share/man/*     \
            /usr/share/doc/*
-
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C / \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 
-ARG COIN
+ARG COIN=xmr
 ENV COIN ${COIN}
 
 COPY "./${COIN}.d/"       /conf.d/

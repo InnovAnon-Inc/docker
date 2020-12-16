@@ -1,5 +1,5 @@
-# miner
-Dockerized Crypto Miners
+# cpuminer-neoscrypt
+Dockerized Crypto Miner
 
 -----
 

@@ -76,8 +76,7 @@ RUN apt install    -y         `/dpkg.list` \
 COPY --chown=root --from=builder \
        /app/cpuminer           /usr/local/bin/cpuminer
 
-# TODO branches instead of args
-ARG COIN=cpuchain
+ARG COIN=yespower
 ENV COIN ${COIN}
 
 COPY "./${COIN}.d/"            /conf.d/
@@ -100,6 +99,5 @@ RUN                            /test \
  && rm -v                      /test
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["btc"]
 CMD        ["default"]
 

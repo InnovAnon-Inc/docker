@@ -94,11 +94,13 @@ COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
  && mkdir -v build                                                      \
  && cd       build                                                      \
- && /configure.sh -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF -DCMAKE_BUILD_TYPE=Debug \
+ && /configure.sh                                                                               \
+      -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF -DCMAKE_BUILD_TYPE=Release \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-all xmrig-notls
+#     -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF                                       \
 # && /configure.sh                                                       \
 #      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
 #      -DWITH_HTTP=OFF -DWITH_TLS=OFF                                    \

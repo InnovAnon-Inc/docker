@@ -52,6 +52,9 @@ commands:
             [[ "$DOCKER_TAG" = generic ]] ||
             exit 0
 
+            echo Skipping testing of GPU-enabled miner
+            exit 0
+
             CID="`docker run -d --rm innovanon/xmrig:$DOCKER_TAG`"
             echo "CID=$CID"
 

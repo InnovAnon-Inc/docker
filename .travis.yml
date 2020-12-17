@@ -11,7 +11,7 @@ script:
   # test natively
   - docker build                                      \
             -t innovanon/cpuminer-opt-cpupower:native \
-            --build-arg COIN=neoscrypt                \
+            --build-arg COIN=cpuchain                 \
             --pull .
   - docker run -d innovanon/cpuminer-opt-cpupower:native
   - sleep 19
@@ -20,7 +20,7 @@ script:
   # deploy generic
   - docker build                                       \
             -t innovanon/cpuminer-opt-cpupower:generic \
-            --build-arg COIN=neoscrypt                 \
+            --build-arg COIN=cpuchain                  \
             --pull .
   - docker run -d innovanon/cpuminer-opt-cpupower:generic
   - sleep 19

@@ -156,7 +156,11 @@ RUN test -f                        /dpkg.list  \
 COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
 
-COPY ./mineconf/xmrig.json   /conf.d/default.json
+#COPY ./mineconf/xmrig.json   /conf.d/default.json
+ARG COIN=xmr-cuda
+ENV COIN ${COIN}
+COPY "./mineconf/${COIN}.d/"   /conf.d/
+VOLUME                         /conf.d
 COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
 
 COPY            --chown=root ./scripts/healthcheck.sh /usr/local/bin/healthcheck

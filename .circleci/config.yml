@@ -81,10 +81,18 @@ jobs:
       - build:
           docker_tag: "generic"
       # TODO push to dockerhub
+  build-opt-cpupower-nehalem:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          docker_tag: "nehalem"
+      # TODO push to dockerhub
 
 workflows:
   build-opt-cpupower:
     jobs:
       - build-opt-cpupower
       - build-opt-cpupower-generic
+      - build-opt-cpupower-nehalem
 

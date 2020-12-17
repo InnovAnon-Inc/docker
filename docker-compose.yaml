@@ -10,7 +10,7 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      #update-delay: 10s
-      placement:
-        constraints: [node.role == worker]
+      update-delay: 91s
+      #placement:
+      #  constraints: [node.role == worker]
 

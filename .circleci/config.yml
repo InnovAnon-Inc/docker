@@ -94,5 +94,5 @@ workflows:
     jobs:
       - build-xmrig
       - build-xmrig-generic
-      - build-xmrig-sandybridge
+      #- build-xmrig-sandybridge
 

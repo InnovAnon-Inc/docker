@@ -99,12 +99,12 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF  \
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
-      -DWITH_CN_GPU=OFF -DWITH_CN_R=OFF -DWITH_RANDOMX=OFF              \
-      -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF                             \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-all xmrig-notls
+#      -DWITH_CN_GPU=OFF -DWITH_RANDOMX=OFF                              \
+#      -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF                             \
 # && /configure.sh                                                       \
 #      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
 #      -DWITH_HTTP=OFF -DWITH_TLS=OFF                                    \

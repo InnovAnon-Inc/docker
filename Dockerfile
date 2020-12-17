@@ -40,7 +40,7 @@ FROM builder as libuv
 
 # TODO
 #ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CFLAGS
+ARG CFLAGS="-g -Og"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
@@ -73,7 +73,7 @@ USER root
 
 # TODO
 #ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CFLAGS
+ARG CFLAGS="-g -Og"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}

@@ -96,7 +96,7 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
- && make -j`nproc`                                                      \
+ && make "-j$(nproc)"                                                   \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
 
@@ -129,7 +129,7 @@ COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck.sh          /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
@@ -138,7 +138,7 @@ CMD ["/usr/local/bin/healthcheck"]
 
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
-COPY            --chown=root ./mineconf/xmrig-cpu-test.json    /conf.d/test.json
+#COPY            --chown=root ./mineconf/xmrig-cpu-test.json    /conf.d/test.json
 COPY            --chown=root ./scripts/test.sh                 /test
 RUN                                                            /test test \
  && rm -v                                                      /test

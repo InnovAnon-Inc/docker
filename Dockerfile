@@ -1,5 +1,4 @@
 FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
-ENV CUDA_LIB /usr/local/cuda
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -27,7 +26,6 @@ RUN apt update \
  && apt full-upgrade -y
 
 FROM base as builder
-ENV CUDA_LIB /usr/local/cuda
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -35,7 +33,6 @@ RUN test -f                        /dpkg-dev.list  \
  && rm -v                          /dpkg-dev.list
 
 FROM builder as libuv
-ENV CUDA_LIB /usr/local/cuda
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
@@ -66,7 +63,6 @@ USER root
 RUN rm -v                         /configure.sh
 
 FROM builder as app
-ENV CUDA_LIB /usr/local/cuda
 USER root
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -103,7 +99,6 @@ USER root
 RUN rm -v /configure.sh
 
 FROM builder as lib
-ENV CUDA_LIB /usr/local/cuda
 USER root
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -131,7 +126,9 @@ RUN mkdir -v build                                                      \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
+      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
+      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
+      -DCUDA_LIB=/usr/local/cuda                                        \
  && make -j`nproc`                                                      \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
@@ -141,7 +138,6 @@ RUN rm -v /configure.sh
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base
-ENV CUDA_LIB /usr/local/cuda
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz

@@ -97,6 +97,7 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && /configure.sh                                                                                 \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF                                         \
       -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF -DCMAKE_BUILD_TYPE=Release \
+      -DWITH_ASM=ON -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF                                        \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

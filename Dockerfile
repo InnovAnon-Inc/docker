@@ -1,4 +1,5 @@
 FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
+ENV CUDA_LIB /usr/local/cuda
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -25,9 +26,8 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-ENV CUDA_LIB /usr/local/cuda
-
 FROM base as builder
+ENV CUDA_LIB /usr/local/cuda
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -35,6 +35,7 @@ RUN test -f                        /dpkg-dev.list  \
  && rm -v                          /dpkg-dev.list
 
 FROM builder as libuv
+ENV CUDA_LIB /usr/local/cuda
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
@@ -65,6 +66,7 @@ USER root
 RUN rm -v                         /configure.sh
 
 FROM builder as app
+ENV CUDA_LIB /usr/local/cuda
 USER root
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -101,6 +103,7 @@ USER root
 RUN rm -v /configure.sh
 
 FROM builder as lib
+ENV CUDA_LIB /usr/local/cuda
 USER root
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -138,6 +141,7 @@ RUN rm -v /configure.sh
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base
+ENV CUDA_LIB /usr/local/cuda
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz

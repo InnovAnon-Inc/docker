@@ -3,10 +3,6 @@ version: 2.1
 commands:
   build:
     parameters:
-      coin:
-        # TODO other coin
-        default: "xmr"
-        type: string
       docker_tag:
         default: "native"
         type: string
@@ -25,7 +21,6 @@ commands:
       - run:
           name: Build
           command: |
-            COIN=<<parameters.coin>>
             DOCKER_TAG=<<parameters.docker_tag>>
             #docker build                           \
             #  --cache-from=app \
@@ -33,7 +28,6 @@ commands:
             docker build                           \
               -t innovanon/xmrig-cpu:$DOCKER_TAG   \
               --build-arg DOCKER_TAG="$DOCKER_TAG" \
-              --build-arg COIN="$COIN"             \
               --pull .
       #- run:
       #    name: Save Docker image layer cache

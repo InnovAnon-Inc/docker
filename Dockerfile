@@ -1,5 +1,4 @@
-#FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
-FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+FROM ubuntu:latest as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -90,50 +89,12 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
+      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
  && make -j`nproc`                                                      \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
-
-USER root
-RUN rm -v /configure.sh
-
-FROM builder as lib
-USER root
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=native
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C /                \
- && rm -v /dest.txz                       \
- && git clone --depth=1 --recursive       \
-    git://github.com/xmrig/xmrig-cuda.git \
-    /app                                  \
- && chown -R nobody:nogroup /app
-WORKDIR                     /app
-USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
-RUN mkdir -v build                                                      \
- && cd       build                                                      \
- && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
-      -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
-      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
-      -DCUDA_LIB=/usr/local/cuda                                        \
- && make -j`nproc`                                                      \
- && strip --strip-unneeded libxmrig-cuda.so                             \
- && strip --strip-all      libxmrig-cu.a
 
 USER root
 RUN rm -v /configure.sh
@@ -169,8 +130,8 @@ CMD ["/usr/local/bin/healthcheck"]
 
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
-#COPY --chown=root ./scripts/test.sh /test
-#RUN /test && rm  -v /test
+COPY --chown=root ./scripts/test.sh /test
+RUN /test && rm  -v /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

@@ -153,13 +153,13 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
+COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
+COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
-COPY ./mineconf/xmrig.json   /conf.d/default.json
+COPY            --chown=root ./mineconf/xmrig.json          /conf.d/default.json
 COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck.sh       /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
@@ -168,8 +168,10 @@ CMD ["/usr/local/bin/healthcheck"]
 
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
-#COPY --chown=root ./scripts/test.sh /test
-#RUN /test && rm  -v /test
+#COPY           --chown=root ./mineconf/xmrig-test.json     /conf.d/test.json
+#COPY           --chown=root ./scripts/test.sh              /test
+#RUN                                                        /test test \
+# && rm -v                                                  /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

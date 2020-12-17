@@ -93,7 +93,7 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
- && make -j`nproc`                                                      \
+ && make "-j$(nproc)"                                                   \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
 
@@ -129,7 +129,7 @@ RUN mkdir -v build                                                      \
       -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
       -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
       -DCUDA_LIB=/usr/local/cuda                                        \
- && make -j`nproc`                                                      \
+ && make "-j$(nproc)"                                                   \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
 
@@ -153,17 +153,17 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
+COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
+COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
 #COPY ./mineconf/xmrig.json   /conf.d/default.json
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}
-COPY "./mineconf/${COIN}.d/"   /conf.d/
-VOLUME                         /conf.d
+COPY "./mineconf/${COIN}.d/"                                /conf.d/
+VOLUME                                                      /conf.d
 COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
@@ -172,8 +172,9 @@ CMD ["/usr/local/bin/healthcheck"]
 
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
-#COPY --chown=root ./scripts/test.sh /test
-#RUN /test && rm  -v /test
+#COPY           --chown=root ./scripts/test.sh              /test
+#RUN                                                        /test \
+# && rm -v                                                  /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

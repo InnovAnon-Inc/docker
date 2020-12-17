@@ -96,12 +96,14 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
+      -DWITH_HTTP=OFF -DWITH_TLS=OFF                                    \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
- && make "-j$(nproc)"                                                   \
- && strip --strip-all xmrig
+ && cd ..                                                               \
+ && cmake --build build                                                 \
+ && cd            build                                                 \
+ && strip --strip-all xmrig-notls
 #RUN upx --all-filters --ultra-brute cpuminer
 
 USER root
@@ -124,7 +126,7 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
+COPY --from=app --chown=root /app/build/xmrig-notls            /usr/local/bin/xmrig
 
 #COPY            --chown=root ./mineconf/xmrig-cpu.json         /conf.d/default.json
 ARG COIN=xmr-cpu
@@ -149,6 +151,5 @@ RUN                                                            /test test \
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
 CMD        ["default"]
 

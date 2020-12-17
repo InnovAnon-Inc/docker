@@ -1,4 +1,4 @@
-# xmrig-cpu
+# moneroocean-cpu
 Dockerized Crypto Miner
 
 -----

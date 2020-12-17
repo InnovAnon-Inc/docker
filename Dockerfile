@@ -78,11 +78,11 @@ ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C /           \
- && rm -v /dest.txz                  \
- && git clone --depth=1 --recursive  \
-    git://github.com/xmrig/xmrig.git \
-    /app                             \
+RUN tar vxf /dest.txz -C /                 \
+ && rm -v /dest.txz                        \
+ && git clone --depth=1 --recursive        \
+    git://github.com/MoneroOcean/xmrig.git \
+    /app                                   \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody

@@ -1,16 +1,16 @@
 version: '3.8'
 services:
-  xmrig-cpu:
+  moneroocean-cpu:
     build:
       context: .
       args:
         # TODO other coin
         COIN: "xmr"
-    image: "innovanon/xmrig-cpu:${DOCKER_TAG}"
+    image: "innovanon/moneroocean-cpu:${DOCKER_TAG}"
     deploy:
       mode: replicated
       replicas: 1
-      #update-delay: 10s
-      placement:
-        constraints: [node.role == worker]
+      update-delay: 91s
+      #placement:
+      #  constraints: [node.role == worker]
 

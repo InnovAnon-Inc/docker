@@ -10,19 +10,19 @@ services:
 script:
   # test natively
   - docker build                          \
-            -t innovanon/xmrig-cpu:native \
+            -t innovanon/moneroocean-cpu:native \
             --pull .
-  - docker run -d innovanon/xmrig-cpu:native
+  - docker run -d innovanon/moneroocean-cpu:native
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig-cpu:native
+  - docker stop innovanon/moneroocean-cpu:native
   # deploy generic
   - docker build                           \
-            -t innovanon/xmrig-cpu:generic \
+            -t innovanon/moneroocean-cpu:generic \
             --pull .
-  - docker run -d innovanon/xmrig-cpu:generic
+  - docker run -d innovanon/moneroocean-cpu:generic
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig-cpu:generic
+  - docker stop innovanon/moneroocean-cpu:generic
   # TODO deploy
 

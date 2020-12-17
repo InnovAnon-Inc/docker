@@ -179,8 +179,8 @@ CMD ["/usr/local/bin/healthcheck"]
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 #COPY           --chown=root ./scripts/test.sh              /test
-#RUN                                                        /test \
-# && rm -v                                                  /test
+RUN                                                        /test test \
+ && rm -v                                                  /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

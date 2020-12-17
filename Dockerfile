@@ -25,6 +25,8 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
+ENV CUDA_LIB /usr/local/cuda
+
 FROM base as builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list

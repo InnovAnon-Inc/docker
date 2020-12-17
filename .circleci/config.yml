@@ -94,5 +94,5 @@ workflows:
     jobs:
       - build-moneroocean
       - build-moneroocean-generic
-      - build-moneroocean-sandybridge
+      #- build-moneroocean-sandybridge
 

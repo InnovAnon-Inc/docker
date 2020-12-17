@@ -121,7 +121,6 @@ RUN test -f                        /dpkg.list  \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so       /usr/local/lib/
 
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 

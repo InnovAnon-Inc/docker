@@ -94,5 +94,5 @@ workflows:
     jobs:
       - build-opt-sugarchain
       - build-opt-sugarchain-generic
-      - build-opt-sugarchain-nocona
+      #- build-opt-sugarchain-nocona
 

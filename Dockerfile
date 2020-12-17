@@ -141,7 +141,7 @@ FROM base
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY ./scripts/dpkg-xmrig.list     /dpkg.list
+COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \

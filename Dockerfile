@@ -84,7 +84,8 @@ RUN tar vxf /dest.txz -C /           \
 WORKDIR                     /app
 USER nobody
 COPY ./scripts/configure-xmrig.sh /configure.sh
-RUN mkdir -v build                                                      \
+RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
+ && mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \

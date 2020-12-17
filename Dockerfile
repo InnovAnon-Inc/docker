@@ -89,12 +89,14 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
+      -DWITH_HTTP=OFF -DWITH_TLS=OFF                                    \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
- && make "-j$(nproc)"                                                   \
- && strip --strip-all xmrig
+ && cd ..                                                               \
+ && cmake --build build                                                 \
+ && cd            build                                                 \
+ && strip --strip-all xmrig-notls
 #RUN upx --all-filters --ultra-brute cpuminer
 
 USER root
@@ -129,7 +131,9 @@ RUN mkdir -v build                                                      \
       -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
       -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
       -DCUDA_LIB=/usr/local/cuda                                        \
- && make "-j$(nproc)"                                                   \
+ && cd ..                                                               \
+ && cmake --build build                                                 \
+ && cd            build                                                 \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
 
@@ -153,7 +157,7 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
+COPY --from=app --chown=root /app/build/xmrig-notls         /usr/local/bin/xmrig
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
 #COPY ./mineconf/xmrig.json   /conf.d/default.json
@@ -178,6 +182,5 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
 CMD        ["default"]
 

@@ -27,6 +27,11 @@ RUN apt update \
 
 FROM base as builder
 
+RUN apt-cache search libhwloc
+RUN apt-cache search libisl
+RUN apt-cache search libmpfr
+RUN apt-cache search libssl
+
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
  && apt install      -y `tail -n+2 /dpkg-dev.list` \

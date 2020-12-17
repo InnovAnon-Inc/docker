@@ -73,7 +73,7 @@ RUN apt install    -y         `/dpkg.list` \
 COPY --chown=root --from=builder \
        /app/cpuminer           /usr/local/bin/cpuminer
 
-ARG COIN=cpuchain
+ARG COIN=scrypt
 ENV COIN ${COIN}
 
 COPY "./${COIN}.d/"            /conf.d/

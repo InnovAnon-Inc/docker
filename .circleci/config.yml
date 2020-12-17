@@ -107,5 +107,5 @@ workflows:
       - build-xmrig-cpu-generic
       #- build-xmrig-cpu-sandybridge
       #- build-xmrig-cpu-nehalem
-      - build-xmrig-cpu-core2
+      #- build-xmrig-cpu-core2
 

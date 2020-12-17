@@ -109,7 +109,7 @@ FROM base
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY ./scripts/dpkg-xmrig.list     /dpkg.list
+COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \
@@ -121,12 +121,12 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig            /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so /usr/local/lib/
+COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
+COPY --from=lib --chown=root /app/build/libxmrig-cuda.so       /usr/local/lib/
 
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
+COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck.sh          /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

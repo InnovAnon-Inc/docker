@@ -121,10 +121,11 @@ RUN tar vxf /dest.txz -C /                \
 WORKDIR                     /app
 USER nobody
 COPY ./scripts/configure-xmrig.sh /configure.sh
+# TODO WITH_CN_R=OFF ?
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
+      -DWITH_CN_R=ON -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF             \
       -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
       -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
       -DCUDA_LIB=/usr/local/cuda                                        \

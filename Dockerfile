@@ -25,12 +25,11 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-FROM base as builder
+RUN echo ABCDE
+RUN apt-cache search xzlib
+RUN apt-cache search libxz
 
-RUN apt-cache search libhwloc
-RUN apt-cache search libisl
-RUN apt-cache search libmpfr
-RUN apt-cache search libssl
+FROM base as builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -113,14 +112,14 @@ COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \
- && tar vxf /dest.txz -C /      \
- && rm -v /dest.txz             \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \
            /usr/share/info/*    \
            /usr/share/man/*     \
-           /usr/share/doc/*
+           /usr/share/doc/*     \
+ && tar vxf /dest.txz -C /      \
+ && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so       /usr/local/lib/
 

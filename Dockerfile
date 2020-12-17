@@ -27,10 +27,10 @@ RUN apt update \
 
 FROM base as builder
 
-COPY ./scripts/dpkg-xmrig.list     /dpkg.list
-RUN test -f                        /dpkg.list  \
- && apt install      -y `tail -n+2 /dpkg.list` \
- && rm -v                          /dpkg.list
+COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
+RUN test -f                        /dpkg-dev.list  \
+ && apt install      -y `tail -n+2 /dpkg-dev.list` \
+ && rm -v                          /dpkg-dev.list
 
 FROM builder as libuv
 
@@ -141,10 +141,10 @@ FROM base
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
-RUN test -f                        /dpkg-dev.list  \
- && apt install      -y `tail -n+2 /dpkg-dev.list` \
- && rm -v                          /dpkg-dev.list  \
+COPY ./scripts/dpkg-xmrig.list     /dpkg.list
+RUN test -f                        /dpkg.list  \
+ && apt install      -y `tail -n+2 /dpkg.list` \
+ && rm -v                          /dpkg.list  \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \

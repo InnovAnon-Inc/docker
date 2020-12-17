@@ -124,12 +124,9 @@ COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
-      -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
-      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
+      -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
+      -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
+      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
       -DCUDA_LIB=/usr/local/cuda                                        \
  && make -j`nproc`                                                      \
  && strip --strip-unneeded libxmrig-cuda.so                             \

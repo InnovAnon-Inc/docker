@@ -88,7 +88,7 @@ COPY --chown=root --from=builder \
 ARG COIN=scrypt
 ENV COIN ${COIN}
 
-COPY "./${COIN}.d/"            /conf.d/
+COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 COPY --chown=root                \
       ./scripts/entrypoint.sh  /usr/local/bin/entrypoint

@@ -4,8 +4,7 @@ commands:
   build:
     parameters:
       coin:
-        # TODO other coin
-        default: "yespower"
+        default: "neoscrypt"
         type: string
       docker_tag:
         default: "native"

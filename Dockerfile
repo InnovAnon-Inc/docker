@@ -31,11 +31,6 @@ RUN apt update \
 
 FROM base as builder
 
-RUN echo ABCDE
-RUN apt-cache search libssl
-RUN apt-cache search libcurl
-RUN apt-cache show libssl-dev
-
 COPY ./scripts/dpkg-dev.list  /dpkg-dev.list
 RUN test -f                         /dpkg-dev.list  \
  && apt install -y       `tail -n+2 /dpkg-dev.list` \

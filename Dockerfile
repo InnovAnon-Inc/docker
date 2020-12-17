@@ -122,6 +122,7 @@ RUN test -f                        /dpkg.list  \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
 
+COPY ./mineconf/xmrig-cpu.json   /conf.d/default.json
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 
 COPY            --chown=root ./scripts/healthcheck.sh          /usr/local/bin/healthcheck
@@ -138,5 +139,6 @@ RUN /test && rm  -v /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
+#CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
+CMD        ["default"]
 

@@ -113,14 +113,14 @@ COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \
+ && tar vxf /dest.txz -C /      \
+ && rm -v /dest.txz             \
  && apt autoremove   -y         \
  && apt clean        -y         \
  && rm -rf /var/lib/apt/lists/* \
            /usr/share/info/*    \
            /usr/share/man/*     \
-           /usr/share/doc/*     \
- && tar vxf /dest.txz -C /      \
- && rm -v /dest.txz
+           /usr/share/doc/*
 COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so       /usr/local/lib/
 

@@ -4,7 +4,9 @@ commands:
   build:
     parameters:
       coin:
-        default: "sha256"
+        # TODO
+        #default: "sha256d"
+        default: "neoscrypt"
         type: string
       docker_tag:
         default: "native"

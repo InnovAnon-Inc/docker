@@ -11,7 +11,7 @@ script:
   # test natively
   - docker build                                \
             -t innovanon/cpuminer-multi:native  \
-            --build-arg COIN=neoscrypt          \
+            --build-arg COIN=x11                \
             --pull .
   - docker run -d innovanon/cpuminer-multi:native
   - sleep 19
@@ -20,7 +20,7 @@ script:
   # deploy generic
   - docker build                                \
             -t innovanon/cpuminer-multi:generic \
-            --build-arg COIN=neoscrypt          \
+            --build-arg COIN=x11                \
             --pull .
   - docker run -d innovanon/cpuminer-multi:generic
   - sleep 19

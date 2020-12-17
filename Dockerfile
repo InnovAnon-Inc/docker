@@ -122,7 +122,7 @@ RUN test -f                        /dpkg.list  \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
 
-COPY ./mineconf/xmrig-cpu.json   /conf.d/default.json
+COPY            --chown=root ./mineconf/xmrig-cpu.json         /conf.d/default.json
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 
 COPY            --chown=root ./scripts/healthcheck.sh          /usr/local/bin/healthcheck
@@ -134,8 +134,10 @@ CMD ["/usr/local/bin/healthcheck"]
 
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
-COPY --chown=root ./scripts/test.sh /test
-RUN /test xmrig-cpu-test && rm  -v /test
+COPY            --chown=root ./mineconf/xmrig-cpu-test.json    /conf.d/test.json
+COPY            --chown=root ./scripts/test.sh                 /test
+RUN                                                            /test test \
+ && rm -v                                                      /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]

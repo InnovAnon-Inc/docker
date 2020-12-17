@@ -109,8 +109,6 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN ls -ltra /usr/local ; exit 2
-
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
  && rm -v /dest.txz                       \

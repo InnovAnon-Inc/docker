@@ -165,6 +165,8 @@ CMD ["/usr/local/bin/healthcheck"]
 #USER nobody
 #EXPOSE 4048
 
+ARG DOCKER_TAG=native
+ENV DOCKER_TAG ${DOCKER_TAG}
 COPY --chown=root ./scripts/test.sh /test
 RUN /test && rm  -v /test
 

@@ -1,4 +1,4 @@
-# xmrig
+# xmrig-cpu
 Dockerized Crypto Miner
 
 -----

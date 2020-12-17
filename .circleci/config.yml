@@ -31,7 +31,7 @@ commands:
             #  --cache-from=app \
  
             docker build                           \
-              -t innovanon/xmrig:$DOCKER_TAG       \
+              -t innovanon/xmrig-cpu:$DOCKER_TAG   \
               --build-arg DOCKER_TAG="$DOCKER_TAG" \
               --build-arg COIN="$COIN"             \
               --pull .
@@ -52,10 +52,7 @@ commands:
             [[ "$DOCKER_TAG" = generic ]] ||
             exit 0
 
-            echo Skipping testing of GPU-enabled miner
-            exit 0
-
-            CID="`docker run -d --rm innovanon/xmrig:$DOCKER_TAG`"
+            CID="`docker run -d --rm innovanon/xmrig-cpu:$DOCKER_TAG`"
             echo "CID=$CID"
 
             docker ps -a | grep "${CID::12}"
@@ -75,24 +72,38 @@ commands:
             docker stop "$CID"
 
 jobs:
-  build-xmrig:
+  build-xmrig-cpu:
     machine: true
       #docker_layer_caching: true
     steps:
       - build
-  build-xmrig-generic:
+  build-xmrig-cpu-generic:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
           docker_tag: "generic"
       # TODO push to dockerhub
-  build-xmrig-sandybridge:
+  build-xmrig-cpu-sandybridge:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
           docker_tag: "sandybridge"
+      # TODO push to dockerhub
+  build-xmrig-cpu-nehalem:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          docker_tag: "nehalem"
+      # TODO push to dockerhub
+  build-xmrig-cpu-core2:
+    machine: true
+      #docker_layer_caching: true
+    steps:
+      - build:
+          docker_tag: "core2"
       # TODO push to dockerhub
 
 workflows:
@@ -100,5 +111,7 @@ workflows:
     jobs:
       - build-xmrig
       - build-xmrig-generic
-      - build-xmrig-sandybridge
+      #- build-xmrig-sandybridge
+      #- build-xmrig-nehalem
+      - build-xmrig-core2
 

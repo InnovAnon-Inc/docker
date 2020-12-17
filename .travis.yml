@@ -9,22 +9,22 @@ services:
 
 script:
   # test natively
-  - docker build                      \
-            -t innovanon/xmrig:native \
-            --build-arg COIN=xmr      \
+  - docker build                          \
+            -t innovanon/xmrig-cpu:native \
+            --build-arg COIN=xmr          \
             --pull .
-  - docker run -d innovanon/xmrig:native
+  - docker run -d innovanon/xmrig-cpu:native
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig:native
+  - docker stop innovanon/xmrig-cpu:native
   # deploy generic
-  - docker build                       \
-            -t innovanon/xmrig:generic \
-            --build-arg COIN=xmr       \
+  - docker build                           \
+            -t innovanon/xmrig-cpu:generic \
+            --build-arg COIN=xmr           \
             --pull .
-  - docker run -d innovanon/xmrig:generic
+  - docker run -d innovanon/xmrig-cpu:generic
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig:generic
+  - docker stop innovanon/xmrig-cpu:generic
   # TODO deploy
 

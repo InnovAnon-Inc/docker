@@ -1,5 +1,5 @@
-#FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
-FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+FROM nvidia/cuda:11.1-devel-ubuntu20.04 as base
+#FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -136,7 +136,7 @@ RUN mkdir -v build                                                      \
 USER root
 RUN rm -v /configure.sh
 
-#FROM nvidia/cuda:11.1-runtime-ubuntu16.04
+#FROM nvidia/cuda:11.1-runtime-ubuntu20.04
 FROM base
 USER root
 

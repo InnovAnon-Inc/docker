@@ -88,11 +88,13 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=OFF                                    \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=ON     \
-      -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
+      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
+      -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF  \
+      -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
+      -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
+      -DWITH_CN_LITE=OFF -DWITH_CN_PICO=OFF -DWITH_CN_HEAVY=OFF         \
+      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
+      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
@@ -127,9 +129,9 @@ COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_CN_R=ON -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF             \
-      -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
-      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
+      -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
+      -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_CN_GPU=ON             \
+      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON             \
       -DCUDA_LIB=/usr/local/cuda                                        \
  && cd ..                                                               \
  && cmake --build build                                                 \

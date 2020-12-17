@@ -1,4 +1,4 @@
-# xmrig
+# moneroocean
 Dockerized Crypto Miner
 
 -----

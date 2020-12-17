@@ -26,7 +26,7 @@ commands:
             #  --cache-from=app \
  
             docker build                           \
-              -t innovanon/xmrig:$DOCKER_TAG       \
+              -t innovanon/moneroocean:$DOCKER_TAG       \
               --build-arg DOCKER_TAG="$DOCKER_TAG" \
               --pull .
       #- run:
@@ -49,7 +49,7 @@ commands:
             echo Skipping testing of GPU-enabled miner
             exit 0
 
-            CID="`docker run -d --rm innovanon/xmrig:$DOCKER_TAG`"
+            CID="`docker run -d --rm innovanon/moneroocean:$DOCKER_TAG`"
             echo "CID=$CID"
 
             docker ps -a | grep "${CID::12}"
@@ -69,19 +69,19 @@ commands:
             docker stop "$CID"
 
 jobs:
-  build-xmrig:
+  build-moneroocean:
     machine: true
       #docker_layer_caching: true
     steps:
       - build
-  build-xmrig-generic:
+  build-moneroocean-generic:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
           docker_tag: "generic"
       # TODO push to dockerhub
-  build-xmrig-sandybridge:
+  build-moneroocean-sandybridge:
     machine: true
       #docker_layer_caching: true
     steps:
@@ -90,9 +90,9 @@ jobs:
       # TODO push to dockerhub
 
 workflows:
-  build-xmrig:
+  build-moneroocean:
     jobs:
-      - build-xmrig
-      - build-xmrig-generic
-      - build-xmrig-sandybridge
+      - build-moneroocean
+      - build-moneroocean-generic
+      - build-moneroocean-sandybridge
 

@@ -1,12 +1,12 @@
 version: '3.8'
 services:
-  xmrig:
+  moneroocean:
     build:
       context: .
       args:
         # TODO other coin
         COIN: "xmr"
-    image: "innovanon/xmrig:${DOCKER_TAG}"
+    image: "innovanon/moneroocean:${DOCKER_TAG}"
     deploy:
       mode: replicated
       replicas: 1

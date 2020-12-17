@@ -78,7 +78,7 @@ COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /           \
  && rm -v /dest.txz                  \
  && git clone --depth=1 --recursive  \
-    git://github.com/xmrig/xmrig.git \
+    git://github.com/MoneroOcean/xmrig.git \
     /app                             \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
@@ -115,7 +115,7 @@ COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
  && rm -v /dest.txz                       \
  && git clone --depth=1 --recursive       \
-    git://github.com/xmrig/xmrig-cuda.git \
+    git://github.com/MoneroOcean/xmrig-cuda.git \
     /app                                  \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app

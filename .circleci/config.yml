@@ -81,12 +81,12 @@ jobs:
       - build:
           docker_tag: "generic"
       # TODO push to dockerhub
-  build-opt-sugarchain-core2:
+  build-opt-sugarchain-nocona:
     machine: true
       #docker_layer_caching: true
     steps:
       - build:
-          docker_tag: "core2"
+          docker_tag: "nocona"
       # TODO push to dockerhub
 
 workflows:
@@ -94,5 +94,5 @@ workflows:
     jobs:
       - build-opt-sugarchain
       - build-opt-sugarchain-generic
-      - build-opt-sugarchain-core2
+      - build-opt-sugarchain-nocona
 

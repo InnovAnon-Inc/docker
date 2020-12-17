@@ -101,11 +101,11 @@ jobs:
       # TODO push to dockerhub
 
 workflows:
-  build-xmrig:
+  build-xmrig-cpu:
     jobs:
-      - build-xmrig
-      - build-xmrig-generic
-      #- build-xmrig-sandybridge
-      #- build-xmrig-nehalem
-      - build-xmrig-core2
+      - build-xmrig-cpu
+      - build-xmrig-cpu-generic
+      #- build-xmrig-cpu-sandybridge
+      #- build-xmrig-cpu-nehalem
+      - build-xmrig-cpu-core2
 

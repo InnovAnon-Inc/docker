@@ -1,26 +1,20 @@
-version: 2.1
+version: '2.1'
+orbs:
+  shellcheck: circleci/shellcheck@2.2.2
+workflows:
+  my_workflow:
+    jobs:
+      - shellcheck/check:
+          dir: .
+      - deploy
 
-commands:
-  build:
+jobs:
+  deploy:
+    machine: true
     steps:
       - checkout
-      - run:
-          name: Lint
-          command: |
-            # TODO
       - run:
           name: Push to Upstream
           command: |
             # TODO
             #
-jobs:
-  build:
-    machine: true
-    steps:
-      - build
-
-workflows:
-  build:
-    jobs:
-      - build
-

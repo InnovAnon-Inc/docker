@@ -11,7 +11,6 @@ script:
   # test natively
   - docker build                      \
             -t innovanon/xmrig:native \
-            --build-arg COIN=xmr      \
             --pull .
   - docker run -d innovanon/xmrig:native
   - sleep 19
@@ -20,7 +19,6 @@ script:
   # deploy generic
   - docker build                       \
             -t innovanon/xmrig:generic \
-            --build-arg COIN=xmr       \
             --pull .
   - docker run -d innovanon/xmrig:generic
   - sleep 19

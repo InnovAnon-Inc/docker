@@ -94,5 +94,5 @@ workflows:
     jobs:
       - build-opt-cpupower
       - build-opt-cpupower-generic
-      - build-opt-cpupower-nehalem
+      #- build-opt-cpupower-nehalem
 

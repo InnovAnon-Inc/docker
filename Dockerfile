@@ -47,10 +47,15 @@ ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 # TODO -march -mtune
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh /entrypoint.sh
-RUN shc -Drv -f /healthcheck.sh \
- && shc -Drv -f /entrypoint.sh
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
+RUN chown -v nobody:nogroup                                 /app
+WORKDIR                                                     /app
+USER nobody
+RUN shc -Drv -f healthcheck.sh   \
+ && shc -Drv -f entrypoint.sh    \
+ && test -x     healthcheck.sh.x \
+ && test -x     entrypoint.sh.x
 
 FROM builder as libuv
 
@@ -194,10 +199,10 @@ ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
-COPY --from=scripts --chown=root /entrypoint.sh.x        /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /app/entrypoint.sh.x        /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh /usr/local/bin/healthcheck
-COPY --from=scripts --chown=root /healthcheck.sh.x        /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

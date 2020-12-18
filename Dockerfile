@@ -139,15 +139,15 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
       -DWITH_CN_GPU=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF           \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF 
-#      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
-#      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
-#      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
+      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-all xmrig-notls
 #RUN upx --all-filters --ultra-brute cpuminer
+#      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
+#      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
+#      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
 
 #USER root
 #RUN rm -v /configure.sh

@@ -93,6 +93,6 @@ workflows:
   build-moneroocean:
     jobs:
       - build-moneroocean
-      - build-moneroocean-generic
+      #- build-moneroocean-generic
       #- build-moneroocean-sandybridge
 

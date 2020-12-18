@@ -34,6 +34,22 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
+FROM builder as scripts
+USER root
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
+RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh \
+ && shc -o /usr/local/bin/entrypoint  -U -H -f /entrypoint.sh
+
 FROM builder as libuv
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -63,23 +79,6 @@ RUN mkdir -v build                                                      \
 
 #USER root
 #RUN rm -v                         /configure.sh
-
-FROM builder as scripts
-USER root
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=generic
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-RUN apt install -y shc
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
-RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh \
- && shc -o /usr/local/bin/entrypoint  -U -H -f /entrypoint.sh
 
 FROM builder as app
 USER root

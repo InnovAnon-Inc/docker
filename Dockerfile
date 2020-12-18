@@ -41,7 +41,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive  \
@@ -64,6 +64,21 @@ RUN mkdir -v build                                                      \
 #USER root
 #RUN rm -v                         /configure.sh
 
+FROM builder as scripts
+USER root
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
+RUN apt install -y shc
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
+RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh
+
 FROM builder as app
 USER root
 
@@ -72,7 +87,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
@@ -129,14 +144,15 @@ COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
+#COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
 #USER nobody
 #EXPOSE 4048
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 #COPY            --chown=root ./mineconf/xmrig-cpu-test.json    /conf.d/test.json
 COPY            --chown=root ./scripts/test.sh                 /test

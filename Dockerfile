@@ -145,10 +145,10 @@ ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
-COPY --from=scripts --chown=root /usr/local/bin/entrypoint.sh.x   /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /entrypoint.sh.x   /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
-COPY --from=scripts --chown=root /usr/local/bin/healthcheck.sh.x   /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /healthcheck.sh.x   /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

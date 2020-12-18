@@ -33,6 +33,8 @@ RUN test -f                        /dpkg-dev.list  \
  && apt install      -y `tail -n+2 /dpkg-dev.list` \
  && rm -v                          /dpkg-dev.list
 
+COPY ./scripts/configure-xmrig.sh /configure.sh
+
 FROM builder as libuv
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -49,7 +51,7 @@ RUN git clone --depth=1 --recursive  \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
+#COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
@@ -60,8 +62,8 @@ RUN mkdir -v build                                                      \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-USER root
-RUN rm -v                         /configure.sh
+#USER root
+#RUN rm -v                         /configure.sh
 
 FROM builder as lib
 USER root
@@ -83,7 +85,7 @@ RUN tar vxf /dest.txz -C /                \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
+#COPY ./scripts/configure-xmrig.sh /configure.sh
 
 # TODO WITH_CN_R=OFF ?
 RUN mkdir -v build                                                      \
@@ -99,8 +101,8 @@ RUN mkdir -v build                                                      \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
 
-USER root
-RUN rm -v /configure.sh
+#USER root
+#RUN rm -v /configure.sh
 
 FROM builder as app
 USER root
@@ -125,7 +127,7 @@ RUN tar vxf /dest.txz -C /           \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
+#COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
  && mkdir -v build                                                      \
  && cd       build                                                      \
@@ -143,8 +145,8 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && strip --strip-all xmrig-notls
 #RUN upx --all-filters --ultra-brute cpuminer
 
-USER root
-RUN rm -v /configure.sh
+#USER root
+#RUN rm -v /configure.sh
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu20.04
 FROM base

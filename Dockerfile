@@ -35,6 +35,22 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
+FROM builder as scripts
+USER root
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig.sh /entrypoint.sh
+RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh \
+ && shc -o /usr/local/bin/entrypoint  -U -H -f /entrypoint.sh
+
 FROM builder as libuv
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -42,7 +58,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive  \
@@ -73,7 +89,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
@@ -114,7 +130,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
@@ -177,16 +193,18 @@ ARG COIN=xmr-cuda
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"                                /conf.d/
 VOLUME                                                      /conf.d
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
+#COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh /usr/local/bin/healthcheck
+#COPY            --chown=root ./scripts/healthcheck-xmrig.sh /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/entrypoint
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
 #USER nobody
 #EXPOSE 4048
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 COPY           --chown=root ./scripts/test.sh              /test
 RUN                                                        /test test \

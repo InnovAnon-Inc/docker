@@ -62,10 +62,14 @@ RUN shc -Drv -f healthcheck.sh   \
 FROM builder as libuv
 USER root
 
-RUN mkdir -v                /app \
- && chown -v nobody:nogroup /app
+RUN git clone --depth=1 --recursive  \
+    git://github.com/libuv/libuv.git \
+    /app                             \
+ && mkdir -v                /app/build \
+ && chown -v nobody:nogroup /app/build
 WORKDIR                     /app
 USER nobody
+
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
@@ -74,11 +78,7 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN git clone --depth=1 --recursive  \
-    git://github.com/libuv/libuv.git \
-    /app                             \
- && mkdir -v build                                                      \
- && cd       build                                                      \
+RUN cd       build                                                      \
  && /configure.sh                                                       \
  && cd       ..                                                         \
  && cmake --build build                                                 \
@@ -93,8 +93,11 @@ USER root
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
  && rm -v /dest.txz                       \
- && mkdir -v                /app          \
- && chown -v nobody:nogroup /app
+ && git clone --depth=1 --recursive       \
+    git://github.com/MoneroOcean/xmrig-cuda.git \
+    /app                                  \
+ && mkdir -v                /app/build \
+ && chown -v nobody:nogroup /app/build
 WORKDIR                     /app
 USER nobody
 
@@ -106,11 +109,7 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN git clone --depth=1 --recursive       \
-    git://github.com/MoneroOcean/xmrig-cuda.git \
-    /app                                  \
- && mkdir -v build                                                      \
- && cd       build                                                      \
+RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_CN_GPU=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF           \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
@@ -130,8 +129,12 @@ COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
                                /usr/local/lib/
 RUN tar vxf /dest.txz -C /           \
  && rm -v /dest.txz                  \
- && mkdir -v                /app     \
- && chown -v nobody:nogroup /app
+ && git clone --depth=1 --recursive  \
+    git://github.com/MoneroOcean/xmrig.git \
+    /app                             \
+ && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' /app/src/donate.h \
+ && mkdir -v                /app/build \
+ && chown -v nobody:nogroup /app/build
 WORKDIR                     /app
 USER nobody
 
@@ -143,12 +146,7 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN git clone --depth=1 --recursive  \
-    git://github.com/MoneroOcean/xmrig.git \
-    /app                             \
- && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
- && mkdir -v build                                                      \
- && cd       build                                                      \
+RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
       -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=OFF   \

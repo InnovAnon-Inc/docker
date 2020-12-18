@@ -36,6 +36,8 @@ RUN test -f                        /dpkg-dev.list  \
  && apt install      -y `tail -n+2 /dpkg-dev.list` \
  && rm -v                          /dpkg-dev.list
 
+COPY ./scripts/configure-xmrig.sh /configure.sh
+
 FROM builder as libuv
 
 # TODO
@@ -54,7 +56,7 @@ RUN git clone --depth=1 --recursive  \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
+#COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
@@ -65,8 +67,8 @@ RUN mkdir -v build                                                      \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-USER root
-RUN rm -v                         /configure.sh
+#USER root
+#RUN rm -v                         /configure.sh
 
 FROM builder as app
 USER root
@@ -90,7 +92,7 @@ RUN tar vxf /dest.txz -C /                 \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
+#COPY ./scripts/configure-xmrig.sh /configure.sh
 RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
  && mkdir -v build                                                      \
  && cd       build                                                      \
@@ -108,8 +110,8 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
 #      -DWITH_KAWPOW=OFF                                                 \
 #RUN upx --all-filters --ultra-brute cpuminer
 
-USER root
-RUN rm -v /configure.sh
+#USER root
+#RUN rm -v /configure.sh
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
 FROM base

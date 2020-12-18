@@ -1,4 +1,4 @@
-FROM ubuntu:latest as moneroocean-cpu-base
+FROM ubuntu:latest as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -25,7 +25,7 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-FROM moneroocean-cpu-base as moneroocean-cpu-builder
+FROM base as builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -34,7 +34,7 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
-FROM moneroocean-cpu-builder as moneroocean-cpu-scripts
+FROM builder as scripts
 USER root
 
 # TODO -march -mtune -U
@@ -58,7 +58,7 @@ RUN shc -Drv -f healthcheck.sh   \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x
 
-FROM moneroocean-cpu-builder as moneroocean-cpu-libuv
+FROM builder as libuv
 USER root
 
 RUN mkdir -v                /app \
@@ -87,10 +87,10 @@ RUN git clone --depth=1 --recursive  \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-FROM moneroocean-cpu-builder as moneroocean-cpu-app
+FROM builder as app
 USER root
 
-COPY --chown=root --from=moneroocean-cpu-libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                 \
  && rm -v /dest.txz                        \
  && mkdir -v                /app           \
@@ -126,10 +126,10 @@ RUN git clone --depth=1 --recursive        \
 #RUN upx --all-filters --ultra-brute cpuminer
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
-FROM moneroocean-cpu-base
+FROM base
 USER root
 
-COPY --chown=root --from=moneroocean-cpu-libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
@@ -142,17 +142,17 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=moneroocean-cpu-app --chown=root /app/build/xmrig-notls            /usr/local/bin/xmrig
+COPY --from=app --chown=root /app/build/xmrig-notls            /usr/local/bin/xmrig
 
 ARG COIN=xmr-cpu
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
-COPY --from=moneroocean-cpu-scripts --chown=root /app/entrypoint.sh.x        /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /app/entrypoint.sh.x        /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
-COPY --from=moneroocean-cpu-scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

@@ -38,33 +38,10 @@ FROM builder as scripts
 USER root
 
 # TODO -march -mtune -U
-RUN mkdir -v                /app
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
-WORKDIR                                                     /app
-RUN mkdir -v                build \
- && chown -v nobody:nogroup build
-USER nobody
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=generic
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-RUN cd build \
- && shc -Drv -f ../healthcheck.sh   \
- && shc -Drv -f ../entrypoint.sh    \
- && test -x     healthcheck.sh.x \
- && test -x     entrypoint.sh.x
-
-FROM builder as libuv
-USER root
-
 RUN mkdir -v                /app \
  && chown -v nobody:nogroup /app
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
 WORKDIR                     /app
 USER nobody
 
@@ -76,11 +53,32 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
+RUN cd build \
+ && shc -Drv -f healthcheck.sh   \
+ && shc -Drv -f entrypoint.sh    \
+ && test -x     healthcheck.sh.x \
+ && test -x     entrypoint.sh.x
+
+FROM builder as libuv
+USER root
+
 RUN git clone --depth=1 --recursive  \
     git://github.com/libuv/libuv.git \
                             /app     \
- && mkdir -v build                                                      \
- && cd       build                                                      \
+ && mkdir -v                /app/build \
+ && chown -v nobody:nogroup /app/build
+WORKDIR                     /app
+USER nobody
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
+RUN cd       build                                                      \
  && /configure.sh                                                       \
  && cd       ..                                                         \
  && cmake --build build                                                 \
@@ -93,10 +91,14 @@ FROM builder as app
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C /           \
- && rm -v /dest.txz                  \
- && mkdir -v                /app     \
- && chown -v nobody:nogroup /app
+RUN git clone --depth=1 --recursive  \
+    git://github.com/xmrig/xmrig.git \
+    /app                             \
+ && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
+ && mkdir -v                /app/build                                  \
+ && chown -v nobody:nogroup /app/build \
+ && tar vxf /dest.txz -C /           \
+ && rm -v /dest.txz
 WORKDIR                     /app
 USER nobody
 
@@ -108,12 +110,7 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN git clone --depth=1 --recursive  \
-    git://github.com/xmrig/xmrig.git \
-    /app                             \
- && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
- && mkdir -v build                                                      \
- && cd       build                                                      \
+RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
       -DWITH_TLS=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \

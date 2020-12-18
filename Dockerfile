@@ -77,7 +77,9 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN apt install -y shc
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
-RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
+RUN shc -o /usr/local/bin/healthcheck -U -H -f /healthcheck.sh \
+ && shc -o /usr/local/bin/entrypoint  -U -H -f /entrypoint.sh
 
 FROM builder as app
 USER root
@@ -142,7 +144,8 @@ ARG COIN=xmr-cpu
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
-COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
+#COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
 COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/healthcheck

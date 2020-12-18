@@ -117,8 +117,8 @@ ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY --chown=root --from=lib   /usr/local/lib/libxmrig-cuda.so \
-                               /usr/local/lib/libxmrig-cu.a    \
+COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
+                               /app/build/libxmrig-cu.a    \
                                /usr/local/lib/
 RUN tar vxf /dest.txz -C /           \
  && rm -v /dest.txz                  \

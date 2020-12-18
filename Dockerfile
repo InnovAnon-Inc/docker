@@ -38,6 +38,14 @@ COPY ./scripts/configure-xmrig.sh /configure.sh
 FROM builder as scripts
 USER root
 
+# TODO -march -mtune -U
+RUN mkdir -v                /app \
+ && chown -v nobody:nogroup /app
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
+COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
+WORKDIR                                                     /app
+USER nobody
+
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
@@ -46,26 +54,13 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-# TODO -march -mtune
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
-RUN chown -v nobody:nogroup                                 /app
-WORKDIR                                                     /app
-USER nobody
 RUN shc -Drv -f healthcheck.sh   \
  && shc -Drv -f entrypoint.sh    \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x
 
 FROM builder as libuv
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=generic
-ENV DOCKER_TAG ${DOCKER_TAG}
+USER root
 
 RUN git clone --depth=1 --recursive  \
     git://github.com/libuv/libuv.git \
@@ -73,7 +68,15 @@ RUN git clone --depth=1 --recursive  \
  && chown -R nobody:nogroup /app
 WORKDIR                     /app
 USER nobody
-#COPY ./scripts/configure-xmrig.sh /configure.sh
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
@@ -84,11 +87,16 @@ RUN mkdir -v build                                                      \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-#USER root
-#RUN rm -v                         /configure.sh
-
 FROM builder as lib
 USER root
+
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
+RUN tar vxf /dest.txz -C /                \
+ && rm -v /dest.txz                       \
+ && mkdir -v                /app          \
+ && chown -v nobody:nogroup /app
+WORKDIR                     /app
+USER nobody
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
@@ -98,19 +106,10 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C /                \
- && rm -v /dest.txz                       \
- && git clone --depth=1 --recursive       \
+RUN git clone --depth=1 --recursive       \
     git://github.com/MoneroOcean/xmrig-cuda.git \
     /app                                  \
- && chown -R nobody:nogroup /app
-WORKDIR                     /app
-USER nobody
-#COPY ./scripts/configure-xmrig.sh /configure.sh
-
-# TODO WITH_CN_R=OFF ?
-RUN mkdir -v build                                                      \
+ && mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
       -DWITH_CN_GPU=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF           \
@@ -121,15 +120,20 @@ RUN mkdir -v build                                                      \
  && cd            build                                                 \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
-#      -DWITH_CN_R=ON -DWITH_CN_LITE=ON -DWITH_CN_HEAVY=ON               \
-#      -DWITH_CN_PICO=ON -DWITH_ARGON2=OFF -DWITH_CN_GPU=ON              \
-#      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON             \
-
-#USER root
-#RUN rm -v /configure.sh
 
 FROM builder as app
 USER root
+
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
+                               /app/build/libxmrig-cu.a    \
+                               /usr/local/lib/
+RUN tar vxf /dest.txz -C /           \
+ && rm -v /dest.txz                  \
+ && mkdir -v                /app     \
+ && chown -v nobody:nogroup /app
+WORKDIR                     /app
+USER nobody
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
 ARG CXXFLAGS
@@ -139,20 +143,10 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
-                               /app/build/libxmrig-cu.a    \
-                               /usr/local/lib/
-RUN tar vxf /dest.txz -C /           \
- && rm -v /dest.txz                  \
- && git clone --depth=1 --recursive  \
+RUN git clone --depth=1 --recursive  \
     git://github.com/MoneroOcean/xmrig.git \
     /app                             \
- && chown -R nobody:nogroup /app
-WORKDIR                     /app
-USER nobody
-#COPY ./scripts/configure-xmrig.sh /configure.sh
-RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
+ && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
  && mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
@@ -166,13 +160,7 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-all xmrig-notls
-#RUN upx --all-filters --ultra-brute cpuminer
-#      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
-#      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
-#      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
-
-#USER root
-#RUN rm -v /configure.sh
+# TODO upx
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu20.04
 FROM base
@@ -194,7 +182,6 @@ RUN test -f                        /dpkg.list  \
 COPY --from=app --chown=root /app/build/xmrig-notls         /usr/local/bin/xmrig
 COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
-#COPY ./mineconf/xmrig.json   /conf.d/default.json
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"                                /conf.d/
@@ -207,15 +194,13 @@ COPY --from=scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/hea
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
-#USER nobody
-#EXPOSE 4048
-
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 COPY           --chown=root ./scripts/test.sh              /test
 RUN                                                        /test test \
  && rm -v                                                  /test
 
+#EXPOSE 4048
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD        ["default"]

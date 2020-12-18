@@ -45,10 +45,11 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
+# TODO -march -mtune
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
-RUN shc -Drv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
- && shc -Drv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
+RUN shc -Drv -f /healthcheck.sh \
+ && shc -Drv -f /entrypoint.sh
 
 FROM builder as libuv
 
@@ -144,10 +145,10 @@ ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
-COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /usr/local/bin/entrypoint.sh.x   /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
-COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /usr/local/bin/healthcheck.sh.x   /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

@@ -136,9 +136,12 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=OFF   \
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
-      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
+      -DWITH_CN_LITE=OFF -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
       -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
-      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
+      -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF                              \
+#      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
+#      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
+#      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

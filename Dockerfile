@@ -53,8 +53,7 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN cd build \
- && shc -Drv -f healthcheck.sh   \
+RUN shc -Drv -f healthcheck.sh   \
  && shc -Drv -f entrypoint.sh    \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x

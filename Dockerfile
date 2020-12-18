@@ -47,8 +47,8 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
 COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
-RUN shc -rv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
- && shc -rv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
+RUN shc -Drv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
+ && shc -Drv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
 
 FROM builder as libuv
 

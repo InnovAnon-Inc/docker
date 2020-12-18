@@ -34,22 +34,22 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
-FROM builder as scripts
-USER root
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=generic
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
-RUN shc -Drv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
- && shc -Drv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
-
+#FROM builder as scripts
+#USER root
+#
+#ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+#ARG CXXFLAGS
+#ENV CFLAGS ${CFLAGS}
+#ENV CXXFLAGS ${CXXFLAGS}
+#
+#ARG DOCKER_TAG=generic
+#ENV DOCKER_TAG ${DOCKER_TAG}
+#
+#COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
+#COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /entrypoint.sh
+#RUN shc -Drv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
+# && shc -Drv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
+#
 FROM builder as libuv
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -143,11 +143,11 @@ ARG COIN=xmr-cpu
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
-#COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
-COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
+COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
+#COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
 
-#COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
-COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/healthcheck
+COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
+#COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

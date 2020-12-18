@@ -25,10 +25,6 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-RUN echo ABCDE
-RUN apt-cache search xzlib
-RUN apt-cache search libxz
-
 FROM base as builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
@@ -98,7 +94,9 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
       -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
- && make "-j$(nproc)"                                                   \
+ && cd ..                                                               \
+ && cmake --build build                                                 \
+ && cd            build                                                 \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
 

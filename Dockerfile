@@ -173,12 +173,11 @@ CMD ["/usr/local/bin/healthcheck"]
 ARG DOCKER_TAG=native
 ENV DOCKER_TAG ${DOCKER_TAG}
 #COPY           --chown=root ./mineconf/xmrig-test.json     /conf.d/test.json
-#COPY           --chown=root ./scripts/test.sh              /test
-#RUN                                                        /test test \
-# && rm -v                                                  /test
+COPY           --chown=root ./scripts/test.sh              /test
+RUN                                                        /test test \
+ && rm -v                                                  /test
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
 CMD        ["default"]
 

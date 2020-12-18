@@ -93,7 +93,7 @@ RUN mkdir -v build                                                      \
       -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
       -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
       -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
-      -DCUDA_LIB=/usr/local/cuda-11.1/targets/x86_64-linux/lib/stubs/libcuda.so \
+      -DCUDA_LIB=/usr/local/cuda-9.1/targets/x86_64-linux/lib/stubs/libcuda.so \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

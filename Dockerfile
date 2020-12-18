@@ -46,10 +46,15 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
+# TODO -march -mtune
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /healthcheck.sh
 COPY            --chown=root ./scripts/entrypoint-xmrig.sh /entrypoint.sh
 RUN shc -Drv -o /usr/local/bin/healthcheck -f /healthcheck.sh \
  && shc -Drv -o /usr/local/bin/entrypoint  -f /entrypoint.sh
+RUN test -x /usr/local/bin/healthcheck
+RUN test -x /usr/local/bin/entrypoint
+RUN /usr/local/bin/healthcheck
+RUN exit 2
 
 FROM builder as libuv
 

@@ -91,11 +91,11 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
  && mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \
-      -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
+      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
+      -DWITH_TLS=ON -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF   \
+      -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
+      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
+      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
  && make "-j$(nproc)"                                                   \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
@@ -145,6 +145,5 @@ RUN                                                            /test test \
 
 WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-#CMD        ["84FEn5Gak63AReZjRtDwV724TsoUtfajxjLHHJZ3zH3vcaAZJwvg4qWdUG9cx7nhA1ZfT9kK89roADmRb1ehLLhH6HyTATK"]
 CMD        ["default"]
 

@@ -90,15 +90,17 @@ USER nobody
 RUN mkdir -v build                                                      \
  && cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
-      -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
-      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
+      -DWITH_CN_GPU=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF           \
+      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
       -DCUDA_LIB=/usr/local/cuda-9.1/targets/x86_64-linux/lib/stubs/libcuda.so \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
+#      -DWITH_CN_R=OFF -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF            \
+#      -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF                              \
+#      -DWITH_RANDOMX=ON -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
 
 #USER root
 #RUN rm -v /configure.sh
@@ -135,12 +137,14 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
       -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=OFF    \
       -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
+      -DWITH_CN_GPU=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF           \
+      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
  && strip --strip-all xmrig
 #RUN upx --all-filters --ultra-brute cpuminer
+#      -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF \
 
 #USER root
 #RUN rm -v /configure.sh

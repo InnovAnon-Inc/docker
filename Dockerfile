@@ -86,7 +86,7 @@ USER nobody
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
 # TODO delete this
-RUN find /usr/local/cuda /usr/local/lib /usr/local/lib64 -iname 'lib*.so*' -o -iname 'lib*.a'
+RUN find /usr/local
 
 # TODO WITH_CN_R=OFF ?
 RUN mkdir -v build                                                      \

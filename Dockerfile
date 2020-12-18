@@ -1,5 +1,5 @@
 #FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
-FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+FROM nvidia/cuda:9.1-devel-ubuntu16.04 as xmrig-base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -26,7 +26,7 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-FROM base as builder
+FROM xmrig-base as xmrig-builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -35,7 +35,7 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
-FROM builder as scripts
+FROM xmrig-builder as xmrig-scripts
 USER root
 
 # TODO -march -mtune -U
@@ -59,7 +59,7 @@ RUN shc -Drv -f healthcheck.sh   \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x
 
-FROM builder as libuv
+FROM xmrig-builder as xmrig-libuv
 USER root
 
 RUN mkdir -v                /app \
@@ -88,10 +88,10 @@ RUN git clone --depth=1 --recursive  \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-FROM builder as lib
+FROM xmrig-builder as xmrig-lib
 USER root
 
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=xmrig-libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
  && rm -v   /dest.txz                     \
  && mkdir -v                /app          \
@@ -123,11 +123,11 @@ RUN git clone --depth=1 --recursive       \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
 
-FROM builder as app
+FROM xmrig-builder as xmrig-app
 USER root
 
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
+COPY --chown=root --from=xmrig-libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=xmrig-lib   /app/build/libxmrig-cuda.so \
                                /app/build/libxmrig-cu.a    \
                                /usr/local/lib/
 RUN tar vxf /dest.txz -C /           \
@@ -166,10 +166,10 @@ RUN git clone --depth=1 --recursive  \
 #RUN upx --all-filters --ultra-brute cpuminer
 
 #FROM nvidia/cuda:9.1-runtime-ubuntu16.04
-FROM base
+FROM xmrig-base
 USER root
 
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=xmrig-libuv /app/build/dest.txz /dest.txz
 COPY ./scripts/dpkg-xmrig.list     /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
@@ -182,18 +182,18 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
+COPY --from=xmrig-app --chown=root /app/build/xmrig               /usr/local/bin/
+COPY --from=xmrig-lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /usr/local/bin/entrypoint
-COPY --from=scripts --chown=root /app/entrypoint.sh.x        /usr/local/bin/entrypoint
+COPY --from=xmrig-scripts --chown=root /app/entrypoint.sh.x        /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh /usr/local/bin/healthcheck
-COPY --from=scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/healthcheck
+COPY --from=xmrig-scripts --chown=root /app/healthcheck.sh.x        /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

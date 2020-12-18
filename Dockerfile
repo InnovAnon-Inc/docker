@@ -38,9 +38,6 @@ FROM builder as scripts
 USER root
 
 # TODO -march -mtune -U
-RUN find /app
-RUN exit 2
-
 RUN mkdir -v                /app \
  && chown -v nobody:nogroup /app
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh

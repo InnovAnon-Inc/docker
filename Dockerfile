@@ -38,11 +38,12 @@ FROM builder as scripts
 USER root
 
 # TODO -march -mtune -U
-RUN mkdir -v                /app \
- && chown -v nobody:nogroup /app
+RUN mkdir -v                /app
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
 COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
 WORKDIR                                                     /app
+RUN mkdir -v                build \
+ && chown -v nobody:nogroup build
 USER nobody
 
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -53,8 +54,9 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-RUN shc -Drv -f healthcheck.sh   \
- && shc -Drv -f entrypoint.sh    \
+RUN cd build \
+ && shc -Drv -f ../healthcheck.sh   \
+ && shc -Drv -f ../entrypoint.sh    \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x
 

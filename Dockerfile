@@ -102,7 +102,7 @@ RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int k
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
       -DWITH_CN_GPU=OFF                                                 \
-      -DWITH_CN_LITE=OFF -DWITH_KAWPOW=OFF              \
+      -DWITH_CN_LITE=OFF                                \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

@@ -90,14 +90,14 @@ FROM builder as app
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN git clone --depth=1 --recursive  \
+RUN tar vxf /dest.txz -C /           \
+ && rm -v /dest.txz                  \
+ && git clone --depth=1 --recursive  \
     git://github.com/xmrig/xmrig.git \
     /app                             \
- && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
+ && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' /app/src/donate.h \
  && mkdir -v                /app/build                                  \
- && chown -v nobody:nogroup /app/build \
- && tar vxf /dest.txz -C /           \
- && rm -v /dest.txz
+ && chown -v nobody:nogroup /app/build
 WORKDIR                     /app
 USER nobody
 

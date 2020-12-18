@@ -84,6 +84,10 @@ RUN tar vxf /dest.txz -C /                \
 WORKDIR                     /app
 USER nobody
 COPY ./scripts/configure-xmrig.sh /configure.sh
+
+# TODO delete this
+RUN find /usr/local/{cuda,lib{,64}} -iname 'lib*.so' -o -iname 'lib*.a'
+
 # TODO WITH_CN_R=OFF ?
 RUN mkdir -v build                                                      \
  && cd       build                                                      \

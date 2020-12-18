@@ -63,47 +63,6 @@ RUN mkdir -v build                                                      \
 USER root
 RUN rm -v                         /configure.sh
 
-FROM builder as app
-USER root
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=native
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-RUN tar vxf /dest.txz -C /           \
- && rm -v /dest.txz                  \
- && git clone --depth=1 --recursive  \
-    git://github.com/MoneroOcean/xmrig.git \
-    /app                             \
- && chown -R nobody:nogroup /app
-WORKDIR                     /app
-USER nobody
-COPY ./scripts/configure-xmrig.sh /configure.sh
-RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
- && mkdir -v build                                                      \
- && cd       build                                                      \
- && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
-      -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF  \
-      -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
-      -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
-      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
-      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
-      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
- && cd ..                                                               \
- && cmake --build build                                                 \
- && cd            build                                                 \
- && strip --strip-all xmrig-notls
-#RUN upx --all-filters --ultra-brute cpuminer
-
-USER root
-RUN rm -v /configure.sh
-
 FROM builder as lib
 USER root
 
@@ -138,6 +97,50 @@ RUN mkdir -v build                                                      \
  && cd            build                                                 \
  && strip --strip-unneeded libxmrig-cuda.so                             \
  && strip --strip-all      libxmrig-cu.a
+
+USER root
+RUN rm -v /configure.sh
+
+FROM builder as app
+USER root
+
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=native
+ENV DOCKER_TAG ${DOCKER_TAG}
+
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=lib   /usr/local/lib/libxmrig-cuda.so \
+                               /usr/local/lib/libxmrig-cu.a    \
+                               /usr/local/lib/
+RUN tar vxf /dest.txz -C /           \
+ && rm -v /dest.txz                  \
+ && git clone --depth=1 --recursive  \
+    git://github.com/MoneroOcean/xmrig.git \
+    /app                             \
+ && chown -R nobody:nogroup /app
+WORKDIR                     /app
+USER nobody
+COPY ./scripts/configure-xmrig.sh /configure.sh
+RUN sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' src/donate.h \
+ && mkdir -v build                                                      \
+ && cd       build                                                      \
+ && /configure.sh                                                       \
+      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF -DWITH_HTTP=OFF -DWITH_ASM=ON \
+      -DWITH_TLS=OFF -DWITH_OPENCL=OFF -DWITH_CUDA=OFF -DWITH_NVML=OFF  \
+      -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
+      -DWITH_MO_BENCHMARK=ON -DWITH_BENCHMARK=OFF                       \
+      -DWITH_CN_LITE=ON -DWITH_CN_PICO=ON -DWITH_CN_HEAVY=ON            \
+      -DWITH_CN_GPU=ON -DWITH_RANDOMX=ON -DWITH_ARGON2=OFF              \
+      -DWITH_ASTROBWT=ON -DWITH_KAWPOW=ON                               \
+ && cd ..                                                               \
+ && cmake --build build                                                 \
+ && cd            build                                                 \
+ && strip --strip-all xmrig-notls
+#RUN upx --all-filters --ultra-brute cpuminer
 
 USER root
 RUN rm -v /configure.sh

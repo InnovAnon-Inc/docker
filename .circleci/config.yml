@@ -104,7 +104,7 @@ workflows:
   build-moneroocean-cpu:
     jobs:
       - build-moneroocean-cpu
-      - build-moneroocean-cpu-generic
+      #- build-moneroocean-cpu-generic
       #- build-moneroocean-cpu-sandybridge
       #- build-moneroocean-cpu-nehalem
       #- build-moneroocean-cpu-core2

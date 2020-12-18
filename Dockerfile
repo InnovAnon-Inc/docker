@@ -1,4 +1,4 @@
-FROM ubuntu:latest as xmrig-cpu-base
+FROM ubuntu:latest as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -25,7 +25,7 @@ ENV  LC_ALL ${LC_ALL}
 RUN apt update \
  && apt full-upgrade -y
 
-FROM xmrig-cpu-base as xmrig-cpu-builder
+FROM base as builder
 
 COPY ./scripts/dpkg-dev-xmrig.list /dpkg-dev.list
 RUN test -f                        /dpkg-dev.list  \
@@ -34,7 +34,7 @@ RUN test -f                        /dpkg-dev.list  \
 
 COPY ./scripts/configure-xmrig.sh /configure.sh
 
-FROM xmrig-cpu-builder as xmrig-cpu-scripts
+FROM builder as scripts
 USER root
 
 # TODO -march -mtune -U
@@ -58,7 +58,7 @@ RUN shc -Drv -f healthcheck.sh   \
  && test -x     healthcheck.sh.x \
  && test -x     entrypoint.sh.x
 
-FROM xmrig-cpu-builder as xmrig-cpu-libuv
+FROM builder as libuv
 USER root
 
 RUN mkdir -v                /app \
@@ -87,10 +87,10 @@ RUN git clone --depth=1 --recursive  \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-FROM xmrig-cpu-builder as xmrig-cpu-app
+FROM builder as app
 USER root
 
-COPY --chown=root --from=xmrig-cpu-libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /           \
  && rm -v /dest.txz                  \
  && mkdir -v                /app     \
@@ -118,6 +118,7 @@ RUN git clone --depth=1 --recursive  \
       -DCMAKE_BUILD_TYPE=Release -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF \
       -DWITH_CN_LITE=OFF -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF         \
       -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_KAWPOW=OFF           \
+      -DWITH_BENCHMARK=OFF                                              \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
@@ -125,10 +126,10 @@ RUN git clone --depth=1 --recursive  \
 #RUN upx --all-filters --ultra-brute cpuminer
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu16.04
-FROM xmrig-cpu-base
+FROM base
 USER root
 
-COPY --chown=root --from=xmrig-cpu-libuv /app/build/dest.txz /dest.txz
+COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 COPY ./scripts/dpkg-xmrig-cpu.list /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
@@ -141,17 +142,17 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=xmrig-cpu-app --chown=root /app/build/xmrig                  /usr/local/bin/
+COPY --from=app --chown=root /app/build/xmrig                  /usr/local/bin/
 
 ARG COIN=xmr-cpu
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
 #COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
-COPY --from=xmrig-cpu-scripts --chown=root /app/entrypoint.sh.x   /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /app/entrypoint.sh.x   /usr/local/bin/entrypoint
 
 #COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
-COPY --from=xmrig-cpu-scripts --chown=root /app/healthcheck.sh.x   /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /app/healthcheck.sh.x   /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

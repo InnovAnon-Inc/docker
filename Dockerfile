@@ -47,7 +47,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive  \
@@ -80,7 +80,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
@@ -136,16 +136,18 @@ ARG COIN=xmr-cpu
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
-COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
+#COPY            --chown=root ./scripts/entrypoint-xmrig-cpu.sh /usr/local/bin/entrypoint
+COPY --from=scripts --chown=root /usr/local/bin/entrypoint        /usr/local/bin/entrypoint
 
-COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
+#COPY            --chown=root ./scripts/healthcheck-xmrig.sh    /usr/local/bin/healthcheck
+COPY --from=scripts --chown=root /usr/local/bin/healthcheck        /usr/local/bin/entrypoint
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
 #USER nobody
 #EXPOSE 4048
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 #COPY            --chown=root ./mineconf/xmrig-cpu-test.json    /conf.d/test.json
 COPY            --chown=root ./scripts/test.sh                 /test

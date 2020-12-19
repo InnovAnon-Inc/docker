@@ -138,7 +138,7 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmr-stak            /usr/local/bin/xmrig
+COPY --from=app --chown=root /app/bin/xmr-stak            /usr/local/bin/xmrig
 
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}

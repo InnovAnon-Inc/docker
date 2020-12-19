@@ -87,6 +87,6 @@ workflows:
   build-neoscrypt:
     jobs:
       - build-neoscrypt
-      - build-neoscrypt-generic
+      #- build-neoscrypt-generic
       # TODO build-neoscrypt-ppc7450
 

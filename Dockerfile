@@ -155,7 +155,7 @@ CMD ["/usr/local/bin/healthcheck"]
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 COPY           --chown=root ./scripts/test.sh              /test
-RUN                                                        /test test \
+RUN                                                        /test \
  && rm -v                                                  /test
 
 #EXPOSE 4048

@@ -140,7 +140,7 @@ RUN test -f                        /dpkg.list  \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/bin/xmr-stak            /usr/local/bin/xmrig
 
-ARG COIN=xmr-cuda
+ARG COIN=xmr-stak
 ENV COIN ${COIN}
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d

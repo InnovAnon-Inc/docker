@@ -114,9 +114,9 @@ RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DCUDA_ENABLE=ON -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON              \
       -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=ON -DHWLOC_ENABLE=ON     \
-      --trace --debug-output                                            \
+      --trace --debug-output -DCMAKE_VERBOSE_MAKEFILE=1                 \
  && cd ..                                                               \
- && cmake --build build                                                 \
+ && VERBOSE=defined cmake --build build                                 \
  && cd            build                                                 \
  && strip --strip-all bin/xmr-stak
 #RUN upx --all-filters --ultra-brute cpuminer

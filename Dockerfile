@@ -43,7 +43,7 @@ USER root
 RUN mkdir -v                /app \
  && chown -v nobody:nogroup /app
 COPY            --chown=root ./scripts/healthcheck-xmrig.sh /app/healthcheck.sh
-COPY            --chown=root ./scripts/entrypoint-xmrig.sh  /app/entrypoint.sh
+COPY            --chown=root ./scripts/entrypoint-xmr-stak.sh  /app/entrypoint.sh
 WORKDIR                     /app
 USER nobody
 
@@ -159,7 +159,7 @@ RUN                                                        /test test \
  && rm -v                                                  /test
 
 #EXPOSE 4048
-WORKDIR /
+WORKDIR /conf.d
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD        ["default"]
 

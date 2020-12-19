@@ -115,6 +115,7 @@ RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DCUDA_ENABLE=ON -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON              \
       -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=OFF -DHWLOC_ENABLE=ON    \
+      -DCMAKE_VERBOSE_MAKEFILE:ON                                       \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

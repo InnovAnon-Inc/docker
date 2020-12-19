@@ -28,7 +28,9 @@ RUN apt update \
 FROM base as builder
 
 COPY ./scripts/dpkg-dev.list /dpkg-dev.list
-RUN apt install -y          `/dpkg-dev.list` \
+RUN test -x                  /dpkg-dev.list  \
+ &&                          /dpkg-dev.list  \
+ && apt install -y          `/dpkg-dev.list` \
  && rm -v                    /dpkg-dev.list
 
 ARG CONF
@@ -62,7 +64,9 @@ USER root
 WORKDIR /
 
 COPY  ./scripts/dpkg.list      /dpkg.list
-RUN apt install    -y         `/dpkg.list` \
+RUN test -x                    /dpkg.list  \
+ &&                            /dpkg.list  \
+ && apt install    -y         `/dpkg.list` \
  && rm -v                      /dpkg.list  \
  && apt autoremove -y                      \
  && apt clean      -y                      \

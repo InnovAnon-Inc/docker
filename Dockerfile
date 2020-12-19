@@ -67,7 +67,6 @@ RUN git clone --depth=1 --recursive  \
                             /app     \
  && mkdir -v                /app/build                                  \
  && chown -v nobody:nogroup /app/build
-RUN mkdir -v                /app \
 WORKDIR                     /app
 USER nobody
 

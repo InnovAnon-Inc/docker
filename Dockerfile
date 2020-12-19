@@ -30,6 +30,7 @@ RUN apt update \
  && apt full-upgrade -y
 
 FROM base as builder
+USER root
 
 COPY ./scripts/dpkg-dev.list  /dpkg-dev.list
 RUN test -f                         /dpkg-dev.list  \
@@ -116,8 +117,6 @@ VOLUME                         /conf.d
 COPY --chown=root --from=scripts \
       ./app/entrypoint.sh.x  /usr/local/bin/entrypoint
 
-#EXPOSE 4048
-
 COPY --chown=root --from=scripts \
       ./app/healthcheck.sh.x /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
@@ -130,6 +129,7 @@ COPY --chown=root                \
 RUN                            /test \
  && rm -v                      /test
 
+#EXPOSE 4048
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD        ["default"]
 

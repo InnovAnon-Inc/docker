@@ -42,9 +42,9 @@ USER root
 RUN mkdir -v                /app \
  && chown -v nobody:nogroup /app
 COPY --chown=root                \
-      ./scripts/entrypoint.sh  /usr/local/bin/entrypoint
+      ./scripts/entrypoint.sh /app/entrypoint.sh
 COPY --chown=root                \
-      ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+      ./scripts/healthcheck.sh /app/healthcheck.sh
 WORKDIR                     /app
 USER nobody
 

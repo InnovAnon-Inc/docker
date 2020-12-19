@@ -38,7 +38,7 @@ ARG CXXFLAGS
 ENV CFLAGS ${CFLAGS}
 ENV CXXFLAGS ${CXXFLAGS}
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
 RUN git clone --depth=1 --recursive   \
@@ -89,7 +89,7 @@ COPY --chown=root                \
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 
-ARG DOCKER_TAG=native
+ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 COPY --chown=root                \
       ./scripts/test.sh        /test

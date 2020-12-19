@@ -1,5 +1,6 @@
 #FROM nvidia/cuda:11.1-devel-ubuntu20.04 as base
-FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+#FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+FROM ubuntu:16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -113,9 +114,8 @@ ENV DOCKER_TAG ${DOCKER_TAG}
 # TODO rm ls
 RUN cd       build                                                      \
  && /configure.sh                                                       \
-      -DCUDA_ENABLE=ON -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON              \
-      -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=OFF -DHWLOC_ENABLE=ON    \
-      -DCMAKE_VERBOSE_MAKEFILE=ON                                       \
+      -DCUDA_ENABLE=OFF -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON             \
+      -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=ON -DHWLOC_ENABLE=ON     \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \

@@ -1,4 +1,4 @@
-# xmrstak
+# xmrstak-cpu
 Dockerized Crypto Miner
 
 -----

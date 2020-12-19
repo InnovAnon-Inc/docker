@@ -37,6 +37,17 @@ RUN test -f                         /dpkg-dev.list  \
  && apt install -y       `tail -n+2 /dpkg-dev.list` \
  && rm -v                           /dpkg-dev.list
 
+FROM builder as scripts
+USER root
+RUN mkdir -v                /app \
+ && chown -v nobody:nogroup /app
+COPY --chown=root                \
+      ./scripts/entrypoint.sh  /usr/local/bin/entrypoint
+COPY --chown=root                \
+      ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+WORKDIR                     /app
+USER nobody
+
 ARG CONF
 ENV CONF ${CONF}
 ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
@@ -47,6 +58,16 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
+RUN shc -Drv -f healthcheck.sh   \
+ && shc -Drv -f entrypoint.sh    \
+ && test -x     healthcheck.sh.x \
+ && test -x     entrypoint.sh.x
+
+FROM builder as app
+USER root
+
+COPY --chown=root ./scripts/configure-multi.sh  /configure.sh
+COPY --chown=root ./scripts/compile.sh          /compile.sh
 RUN git clone --depth=1 --recursive   \
    git://github.com/tpruvot/cpuminer-multi.git \
                             /app      \
@@ -54,14 +75,19 @@ RUN git clone --depth=1 --recursive   \
 WORKDIR                     /app
 USER nobody
 
+ARG CONF
+ENV CONF ${CONF}
+ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
+ARG CXXFLAGS
+ENV CFLAGS ${CFLAGS}
+ENV CXXFLAGS ${CXXFLAGS}
+
+ARG DOCKER_TAG=generic
+ENV DOCKER_TAG ${DOCKER_TAG}
+
 # TODO ppc cross compiler
-COPY ./scripts/configure-multi.sh  /configure.sh
-COPY ./scripts/compile.sh          /compile.sh
 RUN                                /compile.sh \
  && strip --strip-all cpuminer
-
-USER root
-RUN rm -v                          /configure.sh
 #RUN upx --all-filters --ultra-brute cpuminer
 
 FROM base
@@ -79,7 +105,7 @@ RUN test -f                      /dpkg.list  \
            /usr/share/info/*                 \
            /usr/share/man/*                  \
            /usr/share/doc/*
-COPY --chown=root --from=builder \
+COPY --chown=root --from=app \
        /app/cpuminer           /usr/local/bin/cpuminer
 
 ARG COIN=scrypt
@@ -87,13 +113,13 @@ ENV COIN ${COIN}
 
 COPY "./mineconf/${COIN}.d/"   /conf.d/
 VOLUME                         /conf.d
-COPY --chown=root                \
-      ./scripts/entrypoint.sh  /usr/local/bin/entrypoint
+COPY --chown=root --from=scripts \
+      ./app/entrypoint.sh.x  /usr/local/bin/entrypoint
 
 #EXPOSE 4048
 
-COPY --chown=root                \
-      ./scripts/healthcheck.sh /usr/local/bin/healthcheck
+COPY --chown=root --from=scripts \
+      ./app/healthcheck.sh.x /usr/local/bin/healthcheck
 HEALTHCHECK --start-period=30s --interval=1m --timeout=3s --retries=3 \
 CMD ["/usr/local/bin/healthcheck"]
 

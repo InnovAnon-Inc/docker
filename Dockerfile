@@ -163,4 +163,3 @@ WORKDIR /
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD        ["default"]
 
-

@@ -1,4 +1,4 @@
-# xmrig
+# xmrstak
 Dockerized Crypto Miner
 
 -----

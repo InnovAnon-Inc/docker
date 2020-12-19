@@ -1,5 +1,5 @@
-#FROM nvidia/cuda:11.1-devel-ubuntu16.04 as base
-FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+FROM nvidia/cuda:11.1-devel-ubuntu20.04 as base
+#FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -87,15 +87,16 @@ RUN cd       build                                                      \
  && cd           dest                                                   \
  && tar vpacf ../dest.txz --owner root --group root .
 
-FROM builder as lib
+FROM builder as app
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                \
  && rm -v   /dest.txz                     \
  && git clone --depth=1 --recursive       \
-    git://github.com/xmrig/xmrig-cuda.git \
+    git://github.com/fireice-uk/xmr-stak.git \
                             /app          \
+ && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' /app/src/donate.h \
  && mkdir -v                /app/build    \
  && chown -v nobody:nogroup /app/build
 WORKDIR                     /app
@@ -109,66 +110,24 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
+# TODO rm ls
 RUN cd       build                                                      \
  && /configure.sh                                                       \
-      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_CN_LITE=OFF          \
-      -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF                            \
-      -DWITH_CN_R=OFF -DWITH_KAWPOW=OFF                                 \
-      -DCUDA_LIB=/usr/local/cuda-9.1/targets/x86_64-linux/lib/stubs/libcuda.so \
+      -DCUDA_ENABLE=ON -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON              \
+      -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=OFF -DHWLOC_ENABLE=ON    \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
- && strip --strip-unneeded libxmrig-cuda.so                             \
- && strip --strip-all      libxmrig-cu.a
-
-FROM builder as app
-USER root
-
-COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY --chown=root --from=lib   /app/build/libxmrig-cuda.so \
-                               /app/build/libxmrig-cu.a    \
-                               /usr/local/lib/
-RUN tar vxf /dest.txz -C /           \
- && rm -v /dest.txz                  \
- && git clone --depth=1 --recursive  \
-    git://github.com/xmrig/xmrig.git \
-    /app                             \
- && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' /app/src/donate.h \
- && mkdir -v                /app/build \
- && chown -v nobody:nogroup /app/build
-WORKDIR                     /app
-USER nobody
-
-ARG CFLAGS="-g0 -Ofast -ffast-math -fassociative-math -freciprocal-math -fmerge-all-constants -fipa-pta -floop-nest-optimize -fgraphite-identity -floop-parallelize-all"
-ARG CXXFLAGS
-ENV CFLAGS ${CFLAGS}
-ENV CXXFLAGS ${CXXFLAGS}
-
-ARG DOCKER_TAG=generic
-ENV DOCKER_TAG ${DOCKER_TAG}
-
-RUN cd       build                                                      \
- && /configure.sh                                                       \
-      -DWITH_HWLOC=ON -DWITH_LIBCPUID=OFF                               \
-      -DWITH_HTTP=OFF -DWITH_TLS=ON                                     \
-      -DWITH_ASM=ON -DWITH_OPENCL=OFF -DWITH_CUDA=ON -DWITH_NVML=OFF    \
-      -DWITH_DEBUG_LOG=OFF -DHWLOC_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release \
-      -DWITH_BENCHMARK=OFF                                              \
-      -DWITH_ARGON2=OFF -DWITH_ASTROBWT=OFF -DWITH_CN_LITE=OFF          \
-      -DWITH_CN_HEAVY=OFF -DWITH_CN_PICO=OFF                            \
-      -DWITH_KAWPOW=OFF -DWITH_BENCHMARK=OFF                            \
- && cd ..                                                               \
- && cmake --build build                                                 \
- && cd            build                                                 \
- && strip --strip-all xmrig
+ && ls -ltra \
+ && strip --strip-all xmr-stak
 #RUN upx --all-filters --ultra-brute cpuminer
 
-#FROM nvidia/cuda:9.1-runtime-ubuntu16.04
+#FROM nvidia/cuda:11.1-runtime-ubuntu20.04
 FROM base
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY ./scripts/dpkg-xmrig.list     /dpkg.list
+COPY ./scripts/dpkg-xmrig-cpu.list     /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \
@@ -181,7 +140,6 @@ RUN test -f                        /dpkg.list  \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
 COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
-COPY --from=lib --chown=root /app/build/libxmrig-cuda.so    /usr/local/lib/
 
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}

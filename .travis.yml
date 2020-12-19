@@ -10,19 +10,19 @@ services:
 script:
   # test natively
   - docker build                      \
-            -t innovanon/xmrig:native \
+            -t innovanon/xmrstak:native \
             --pull .
-  - docker run -d innovanon/xmrig:native
+  - docker run -d innovanon/xmrstak:native
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig:native
+  - docker stop innovanon/xmrstak:native
   # deploy generic
   - docker build                       \
-            -t innovanon/xmrig:generic \
+            -t innovanon/xmrstak:generic \
             --pull .
-  - docker run -d innovanon/xmrig:generic
+  - docker run -d innovanon/xmrstak:generic
   - sleep 19
   - docker ps -a
-  - docker stop innovanon/xmrig:generic
+  - docker stop innovanon/xmrstak:generic
   # TODO deploy
 

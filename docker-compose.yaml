@@ -1,12 +1,12 @@
 version: '3.8'
 services:
-  xmrig:
+  xmrstak:
     build:
       context: .
       args:
         # TODO other coin
         COIN: "xmr"
-    image: "innovanon/xmrig:${DOCKER_TAG}"
+    image: "innovanon/xmrstak:${DOCKER_TAG}"
     deploy:
       mode: replicated
       replicas: 1

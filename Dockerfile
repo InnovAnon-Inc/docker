@@ -111,7 +111,6 @@ ENV CXXFLAGS ${CXXFLAGS}
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 
-# TODO rm ls
 RUN cd       build                                                      \
  && /configure.sh                                                       \
       -DCUDA_ENABLE=OFF -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON             \
@@ -119,8 +118,7 @@ RUN cd       build                                                      \
  && cd ..                                                               \
  && cmake --build build                                                 \
  && cd            build                                                 \
- && ls -ltra \
- && strip --strip-all xmr-stak
+ && strip --strip-all bin/xmr-stak
 #RUN upx --all-filters --ultra-brute cpuminer
 
 #FROM nvidia/cuda:11.1-runtime-ubuntu20.04
@@ -140,7 +138,7 @@ RUN test -f                        /dpkg.list  \
            /usr/share/doc/*     \
  && tar vxf /dest.txz -C /      \
  && rm -v /dest.txz
-COPY --from=app --chown=root /app/build/xmrig               /usr/local/bin/
+COPY --from=app --chown=root /app/build/xmr-stak            /usr/local/bin/xmrig
 
 ARG COIN=xmr-cuda
 ENV COIN ${COIN}

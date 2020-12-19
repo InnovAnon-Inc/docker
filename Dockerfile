@@ -92,7 +92,7 @@ USER root
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
 RUN tar vxf /dest.txz -C /                 \
  && rm -v /dest.txz                        \
-RUN git clone --depth=1 --recursive        \
+ && git clone --depth=1 --recursive        \
     git://github.com/MoneroOcean/xmrig.git \
     /app                                   \
  && sed -i 's/constexpr const int kMinimumDonateLevel = 1;/constexpr const int kMinimumDonateLevel = 0;/' /app/src/donate.h \

@@ -115,6 +115,7 @@ RUN cd       build                                                      \
       -DCUDA_ENABLE=ON -DOpenCL_ENABLE=OFF -DCPU_ENABLE=ON              \
       -DMICROHTTPD_ENABLE=OFF -DOpenSSL_ENABLE=ON -DHWLOC_ENABLE=ON     \
       --trace --debug-output -DCMAKE_VERBOSE_MAKEFILE=1                 \
+      -DCUDA_NVCC_FLAGS=--verbose \
  && cd ..                                                               \
  && VERBOSE=defined cmake --build build                                 \
  && cd            build                                                 \

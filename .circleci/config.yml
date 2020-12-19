@@ -93,6 +93,6 @@ workflows:
   build-opt-cpupower:
     jobs:
       - build-opt-cpupower
-      - build-opt-cpupower-generic
+      #- build-opt-cpupower-generic
       #- build-opt-cpupower-nehalem
 

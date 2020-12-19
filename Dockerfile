@@ -33,6 +33,7 @@ FROM base as builder
 
 COPY ./scripts/dpkg-dev.list  /dpkg-dev.list
 RUN test -f                         /dpkg-dev.list  \
+ &&                       tail -n+2 /dpkg-dev.list  \
  && apt install -y       `tail -n+2 /dpkg-dev.list` \
  && rm -v                           /dpkg-dev.list
 
@@ -69,6 +70,7 @@ WORKDIR /
 
 COPY  ./scripts/dpkg.list  /dpkg.list
 RUN test -f                      /dpkg.list  \
+ &&                    tail -n+2 /dpkg.list  \
  && apt install    -y `tail -n+2 /dpkg.list` \
  && rm -v                        /dpkg.list  \
  && apt autoremove -y                        \

@@ -88,5 +88,5 @@ workflows:
   build-multi:
     jobs:
       - build-multi
-      - build-multi-generic
+      #- build-multi-generic
 

@@ -1,5 +1,5 @@
-FROM nvidia/cuda:11.1-devel-ubuntu20.04 as base
-#FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
+#FROM nvidia/cuda:11.1-devel-ubuntu20.04 as base
+FROM nvidia/cuda:9.1-devel-ubuntu16.04 as base
 
 MAINTAINER Innovations Anonymous <InnovAnon-Inc@protonmail.com>
 LABEL version="1.0"                                                     \
@@ -127,7 +127,7 @@ FROM base
 USER root
 
 COPY --chown=root --from=libuv /app/build/dest.txz /dest.txz
-COPY ./scripts/dpkg-xmrig-cpu.list     /dpkg.list
+COPY ./scripts/dpkg-xmrig.list     /dpkg.list
 RUN test -f                        /dpkg.list  \
  && apt install      -y `tail -n+2 /dpkg.list` \
  && rm -v                          /dpkg.list  \

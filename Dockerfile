@@ -155,11 +155,11 @@ CMD ["/usr/local/bin/healthcheck"]
 ARG DOCKER_TAG=generic
 ENV DOCKER_TAG ${DOCKER_TAG}
 COPY           --chown=root ./scripts/test.sh              /test
-RUN                                                        /test \
+RUN                                                        /test config \
  && rm -v                                                  /test
 
 #EXPOSE 4048
 WORKDIR /conf.d
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
-CMD        ["default"]
+CMD        ["config"]
 

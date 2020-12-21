@@ -5,6 +5,9 @@ workflows:
   my_workflow:
     jobs:
       - check
+      - deploy-cpuminer:
+          requires:
+            - check
       - deploy-cpuminer-multi:
           requires:
             - check
@@ -34,6 +37,11 @@ jobs:
           name: Lint
           command: |
             jq . *.d/*.json
+  deploy-cpuminer:
+    machine: true
+    steps:
+      - deploy:
+          repo: "cpuminer"
   deploy-cpuminer-multi:
     machine: true
     steps:

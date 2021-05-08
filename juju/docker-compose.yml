@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  base:
+    build:
+      context: juju
+    image: innovanon/zenbot
+    #restart: never
+    deploy:
+      mode: replicated
+      replicas: 0
+
